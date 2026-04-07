@@ -1,0 +1,109 @@
+---
+import { getCollection } from "astro:content";
+import { side_nav_menu_order } from "@/config";
+
+const docs = await getCollection("docs", (d) => !d.data.draft);
+const slugSet = new Set(docs.map((d) => d.slug));
+const titleMap = new Map(docs.map((d) => [d.slug, d.data.title]));
+
+// Build ordered list of pages that actually exist (skip folder-only entries)
+const ordered = side_nav_menu_order.filter((s) => slugSet.has(s));
+
+const currentSlug = Astro.url.pathname.replace(/^\/|\/$/g, "");
+const idx = ordered.indexOf(currentSlug);
+
+const prev = idx > 0 ? { slug: ordered[idx - 1], title: titleMap.get(ordered[idx - 1]) ?? ordered[idx - 1] } : null;
+const next = idx >= 0 && idx < ordered.length - 1 ? { slug: ordered[idx + 1], title: titleMap.get(ordered[idx + 1]) ?? ordered[idx + 1] } : null;
+---
+
+{(prev || next) && (
+  <nav class="prev-next" aria-label="Page navigation">
+    {prev ? (
+      <a href={`/${prev.slug}`} class="pn-link pn-prev">
+        <span class="pn-direction">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          Previous
+        </span>
+        <span class="pn-title">{prev.title}</span>
+      </a>
+    ) : <span />}
+    {next ? (
+      <a href={`/${next.slug}`} class="pn-link pn-next">
+        <span class="pn-direction">
+          Next
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </span>
+        <span class="pn-title">{next.title}</span>
+      </a>
+    ) : <span />}
+  </nav>
+)}
+
+<style>
+  .prev-next {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid color-mix(in oklab, var(--ink, currentColor) 12%, transparent);
+  }
+
+  @media (max-width: 560px) {
+    .prev-next {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  }
+
+  .pn-link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1.5px solid color-mix(in oklab, var(--ink, currentColor) 12%, transparent);
+    text-decoration: none !important;
+    color: var(--ink, currentColor);
+    transition: border-color 150ms ease, background 150ms ease;
+  }
+
+  .pn-link:hover {
+    border-color: color-mix(in oklab, var(--ink, currentColor) 28%, transparent);
+    background: color-mix(in oklab, var(--ink, currentColor) 4%, transparent);
+  }
+
+  .pn-next {
+    text-align: right;
+    align-items: flex-end;
+  }
+
+  @media (max-width: 560px) {
+    .pn-next {
+      text-align: left;
+      align-items: flex-start;
+    }
+  }
+
+  .pn-direction {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: color-mix(in oklab, var(--ink, currentColor) 50%, transparent);
+  }
+
+  .pn-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+</style>
