@@ -11,7 +11,7 @@ export const ANALYTICS = {
 export const SITE = {
   website: "https://sharenote.xyz",
   author: "soprinter",
-  desc: "Sharenote is a proof-of-work protocol that turns raw computational energy into portable, verifiable notes — usable for sorting feeds, weighting content, curating AI training data, and auditing mining payouts.",
+  desc: "Sharenote is a proof-of-work protocol that turns energy into verifiable notes. Use them to sort feeds, weight content, and audit mining payouts natively.",
   title: "Sharenote",
   ogImage: "og-image.png",
   repo: "https://github.com/soprinter",
