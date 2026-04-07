@@ -3,11 +3,11 @@ import { getCollection } from "astro:content";
 import { side_nav_menu_order } from "@/config";
 
 const docs = await getCollection("docs", (d) => !d.data.draft);
-const slugSet = new Set(docs.map((d) => d.slug));
-const titleMap = new Map(docs.map((d) => [d.slug, d.data.title]));
+const slugSet = new Set(docs.map((d) => d.slug as string));
+const titleMap = new Map<string, string>(docs.map((d) => [d.slug as string, d.data.title]));
 
 // Build ordered list of pages that actually exist (skip folder-only entries)
-const ordered = side_nav_menu_order.filter((s) => slugSet.has(s));
+const ordered: string[] = (side_nav_menu_order as string[]).filter((s) => slugSet.has(s));
 
 const currentSlug = Astro.url.pathname.replace(/^\/|\/$/g, "");
 const idx = ordered.indexOf(currentSlug);
