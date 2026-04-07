@@ -43,8 +43,28 @@ const websiteJSONLD = {
   url: SITE.website,
 };
 
-// Satisfy linter that these are read for the script templates below
-const _ld = { organizationJSONLD, websiteJSONLD };
+// Generate BreadcrumbList Schema
+const pathSegments = Astro.url.pathname.split("/").filter(s => s);
+const breadcrumbListJSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: SITE.website,
+    },
+    ...pathSegments.map((segment, index) => ({
+      '@type': 'ListItem',
+      position: index + 2,
+      name: segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' '),
+      item: new URL(`/${pathSegments.slice(0, index + 1).join("/")}`, SITE.website).toString(),
+    })),
+  ],
+};
+
+const schemaJSONLD = [organizationJSONLD, websiteJSONLD, breadcrumbListJSONLD];
 ---
 
 <meta charset="utf-8" />
@@ -77,6 +97,8 @@ const _ld = { organizationJSONLD, websiteJSONLD };
 <meta property="og:image" content={resolvedOgImage} />
 
 <meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:site" content="@soprinter" />
+<meta property="twitter:creator" content="@soprinter" />
 <meta property="twitter:url" content={canonicalURL} />
 <meta property="twitter:title" content={metaTitle} />
 {metaDescription && (
@@ -84,16 +106,9 @@ const _ld = { organizationJSONLD, websiteJSONLD };
 )}
 <meta property="twitter:image" content={resolvedOgImage} />
 
-{metaTitle && (
-  <script type="application/ld+json" is:inline>
-    {JSON.stringify(organizationJSONLD)}
-  </script>
-)}
-{metaTitle && (
-  <script type="application/ld+json" is:inline>
-    {JSON.stringify(websiteJSONLD)}
-  </script>
-)}
+<script type="application/ld+json" is:inline>
+  {JSON.stringify(schemaJSONLD)}
+</script>
 
 {enableAnalytics && (
   <>
