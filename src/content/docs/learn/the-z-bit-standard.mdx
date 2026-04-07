@@ -1,0 +1,43 @@
+---
+title: "The Z-Bit Standard"
+description: "Understanding continuous difficulty and log-2 precision — the math behind Sharenote denominations."
+---
+
+> **Going Deeper** — This page covers the precise math behind Sharenote denominations. You should understand the [printing press analogy](/learn/what-is-sharenote) and [how denominations work](/learn/how-it-works) before continuing here.
+
+Sharenote separates human-readable denominations from the underlying cryptographic difficulty. This separation is what enables precision across decentralized applications.
+
+> **Why miners and pools need to understand this**: Every payout calculation, every multi-chain work claim, and every Sharenote label you see is derived from this math. If your stratum or pool software adds difficulty values incorrectly, payouts will be wrong. This page explains why — and how to do it right.
+
+## Discrete Labels vs Continuous Math
+
+A **Sharenote label** (e.g., `34Z10`) is a human-readable string acting as a **routing parameter** — it declares the *minimum* difficulty floor required for a note to be valid.
+
+However, the underlying computation is far more precise. Its exact density is called **Continuous Difficulty ($D$)**, expressed as a precise floating-point number in linear space derived from the actual hash target.
+
+> Think of Z-Bits like decibels for sound — a small numerical difference represents a large real-world change in actual difficulty. Just as you cannot simply add decibel values, you cannot add Z-Bit labels directly.
+
+### The Strict Aggregation Law
+
+Because Sharenote uses a log-2 scale for difficulty, summing discrete labels directly leads to severe precision loss.
+
+**Wrong**: `2Z00` + `10Z00` = `12Z00` ❌  
+**Correct**: Add in linear space, then convert back.
+
+**Worked example:**
+- `2Z00` $\rightarrow D = 2^2 = 4$
+- `10Z00` $\rightarrow D = 2^{10} = 1024$
+- $D_{\text{total}} = 4 + 1024 = 1028$
+- Result: $\log_2(1028) \approx 10.006 \rightarrow$ label `10Z00`, not `12Z00`
+
+The correct combined label is nearly identical to the larger one — the smaller share barely moves the total. This is why naive label addition is always wrong.
+
+All aggregation MUST follow the three-step law defined in [SNIP-00](/specifications/snip-00):
+
+1. $D = 2^B$ (Z-Bits $\rightarrow$ linear)
+2. $D_{\text{total}} = D_1 + D_2 + \dots + D_n$ (sum)
+3. $B_{\text{total}} = \log_2(D_{\text{total}})$ (back to Z-Bits)
+
+> **Key Rule**: Never add Sharenote labels directly. Always convert to Continuous Difficulty first ($D = 2^B$), sum in linear space, then convert back ($B = \log_2(D)$). The sharenote skill enforces this law automatically when generating aggregation code.
+
+→ Continue to [Learn by Example](/learn/learn-by-example)

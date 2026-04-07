@@ -1,43 +1,38 @@
 ---
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-} from "@/components/ui/breadcrumb";
+import { ChevronRight, Home } from "lucide-react";
+import { SITE } from "@/config";
 
-import type { BreadcrumbsProps } from "@/lib/types";
-import { buildBreadcrumbs } from "@/lib/utils";
+const { url } = Astro;
+const pathSegments = url.pathname.split("/").filter((segment) => segment !== "");
 
-// Get the current document's slug from route params
-const slug: string = Astro.url.pathname;
-
-// Build the breadcrumb trail
-const breadcrumbs: BreadcrumbsProps = buildBreadcrumbs(slug || "");
-
-// To pass the tailwindcss classes to the astro component
-const { class: className } = Astro.props;
+const breadcrumbs = pathSegments.map((segment, index) => {
+  const href = `/${pathSegments.slice(0, index + 1).join("/")}`;
+  const label = segment
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+  return { label, href };
+});
 ---
 
-{breadcrumbs.length > 1 && (
-  <div class:list={className}>
-    <Breadcrumb>
-      <BreadcrumbList className="m-0">
-        {
-          breadcrumbs.map((breadcrumb, index) => (
-            <BreadcrumbItem>
-              {index < breadcrumbs.length - 1 ? (
-                <BreadcrumbLink href={breadcrumb.link} className="no-underline">
-                  {breadcrumb.title}
-                </BreadcrumbLink>
-              ) : (
-                <span>{breadcrumb.title}</span>
-              )}
-              {index < breadcrumbs.length - 1 && <span> / </span>}
-            </BreadcrumbItem>
-          ))
-        }
-      </BreadcrumbList>
-    </Breadcrumb>
-  </div>
-)}
+{
+  breadcrumbs.length > 0 && (
+    <nav class="flex items-center space-x-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60 mb-6 px-1" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-foreground transition-colors flex items-center gap-1">
+        <Home size={10} />
+      </a>
+      {breadcrumbs.map((breadcrumb, index) => (
+        <div class="flex items-center space-x-2">
+          <ChevronRight size={10} strokeWidth={3} />
+          {index === breadcrumbs.length - 1 ? (
+            <span class="text-foreground/80 font-bold">{breadcrumb.label}</span>
+          ) : (
+            <a href={breadcrumb.href} class="hover:text-foreground transition-colors">
+              {breadcrumb.label}
+            </a>
+          )}
+        </div>
+      ))}
+    </nav>
+  )
+}

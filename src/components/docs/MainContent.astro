@@ -22,9 +22,9 @@ const {
 } = Astro.props as MainContentProps;
 ---
 
-<div class="bg-card pt-4 px-6 min-h-static_sidemenu">
+<div class="bg-card pt-8 px-6 pb-16 min-h-static_sidemenu">
   {!docconfig.hide_breadcrumbs && !hide_breadcrumbs && <Breadcrumbs class="" />}
-  <h1 class="pb-2">{capitalizeFirstLetter(title)}</h1>
+  <h1 class="pb-3">{capitalizeFirstLetter(title)}</h1>
   {
     !docconfig.hide_datetime && pubDatetime && (
       <Datetime
@@ -37,7 +37,7 @@ const {
     )
   }
   {!docconfig.hide_author && <h6 class="muted font-mono">By {author}</h6>}
-  <div class="prose pt-4">
+  <div class="prose pt-6">
     <slot />
   </div>
   <BacktoTop />

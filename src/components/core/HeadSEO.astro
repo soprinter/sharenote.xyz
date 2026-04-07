@@ -57,6 +57,12 @@ const websiteJSONLD = {
 <meta name="generator" content={Astro.generator} />
 <link rel="canonical" href={canonicalURL} />
 <link rel="shortcut icon" type="image/svg+xml" href="/favicon.svg" />
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+  integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFas9aVVUsd"
+  crossorigin="anonymous"
+/>
 <title>{metaTitle}</title>
 <meta name="title" content={metaTitle} />
 {metaDescription && <meta name="description" content={metaDescription} />}

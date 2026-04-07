@@ -1,0 +1,126 @@
+---
+title: "Glossary"
+description: "Definitions for all core Sharenote protocol terms — ordered from the most accessible to the most technical."
+---
+
+This page defines every term used throughout the Sharenote documentation. Entries are ordered from the most accessible concepts to the most technical. If you encounter an unfamiliar word, start here.
+
+## Proof-of-Work (PoW)
+
+A technique where a computer performs a large amount of computation to produce a specific result. The result is trivially easy to *verify* but computationally expensive to *produce*. This asymmetry makes it useful for establishing digital consensus weight and a way to prove that real energy was expended.
+
+*Think of it like a padlock puzzle — solving it takes real effort, but anyone can mathematically verify if your solution is correct.*
+
+## Sharenote
+
+A discrete, human-readable denomination of proof-of-work, expressed as a label such as `34Z10`. The format is `XZYY` where `X` is the integer Z-bit floor and `YY` is the truncated centi-bits.
+
+A Sharenote label acts as a **routing parameter and minimum difficulty floor**. Think of it like the face value printed on a banknote — it communicates the minimum energy required to produce it. It is **not** used for arithmetic — only the underlying Continuous Difficulty value is used for calculations.
+
+## Z-Bit
+
+The base unit of difficulty measurement in the Sharenote protocol. Z-Bits represent difficulty on a **logarithmic (log-2) scale**, similar to how decibels measure sound intensity.
+
+- `1 Z-Bit` = a hash 2× harder than baseline
+- `10 Z-Bits` = a hash 1,024× harder than baseline
+- `34 Z-Bits` = 2^34 ≈ 17 billion hash executions
+
+## Physical Share
+
+A raw, solved hash computation produced by mining hardware. When a miner's ASIC or GPU finds a hash that meets the required difficulty target, that result is a Physical Share.
+
+In standard mining software, this is called a "submitted share" or "accepted share." Sharenote uses *Physical Share* to distinguish the raw cryptographic hash payload from the human-readable label derived from it.
+
+## Work Template
+
+The specific hash puzzle distributed by a mining pool to connected hardware. A work template defines exactly what computation the miner's ASIC or GPU will attempt — including the block header, coinbase transaction, and difficulty target.
+
+Sharenote enables pools to publish work template commitments as signed Nostr events, making work assignments publicly readable and auditable by any party.
+
+## Nostr
+
+A simple, open protocol for publishing and distributing cryptographically signed messages (called *events*) across a network of servers (called *relays*). Anyone can run a relay or publish events. Events are signed with a private key — no central server controls your identity.
+
+Sharenote uses Nostr as its broadcast layer. Work state and pool accounting records are published as Nostr events that any party can independently read and verify.
+
+[What is Nostr? →](https://nostr.com)
+
+## Relay
+
+A Nostr server that stores and distributes signed events. Relays cannot alter event content — the cryptographic signature would break if they did. Miners choose which relays to publish to and can run their own for full data sovereignty.
+
+## Nostr Keypair
+
+A pair of cryptographic keys used to sign and identify Nostr events:
+- **Private key**: A secret 32-byte value that signs your events. Never share this.
+- **Public key**: A derived counterpart that serves as your permanent identity on the network.
+
+Generate a keypair at [nstart.me](https://nstart.me).
+
+## Stratum
+
+The standard communication protocol between mining hardware (ASICs, GPUs) and mining pools. It delivers work templates to miners and receives submitted shares. Sharenote integrates *directly into* Stratum components — both on the miner-side to publish events and the pool-side to validate.
+
+## Stratum-Side Component
+
+A Stratum-side component natively integrates into a standard mining client or server. It handles solved Physical Shares, signing them with the miner's Nostr private key natively, and publishes the resulting Kind 35502 **telemetry events** and Kind 35510 **printing events** to the miner's chosen relays.
+
+The Stratum-side component also natively manages simultaneous AuxPoW work — combining templates from multiple pools or chains and presenting the hardware with a single optimal puzzle to solve.
+
+The component is **baked directly** into the Stratum operation, serving as the interface between traditional mining flows and the decentralized relay network.
+
+## Pool Alliance
+
+A formal, verifiable cooperation agreement between two or more mining pools. In Sharenote, pool alliances are established when pools co-sign the same work template commitments on the Nostr relay network — enabling miners to explicitly participate in coordinated mining across multiple pool relationships with full public audit trails.
+
+> **Status**: Pool alliances are a core design goal of the Sharenote protocol. The formal SNIP specification for pool alliance coordination is in active development.
+
+## Watchtower
+
+Any application, dashboard, or service that connects to the Nostr relay network and reads Sharenote events. Watchtowers reconstruct the full history of distributed work, miner output, and pool settlements from public cryptographic proofs — without needing to ask any pool or miner for data directly.
+
+Watchtowers are passive consumers of the open relay state. They do not require any special permission or trust relationship. See [How It Works](/learn/how-it-works) for the full pipeline.
+
+## SNIP
+
+**Sharenote Improvement Proposal**. A formal specification document defining a specific aspect of the Sharenote protocol. Similar to Bitcoin's BIPs or Nostr's NIPs.
+
+## Nostr Event Kind
+
+A numeric identifier that categorizes a Nostr event. Sharenote defines specific Kind numbers for each type of mining event:
+
+| Kind | SNIP | Purpose |
+|------|------|---------|
+| `10520` | SNIP-05 | Miner Identity (replaceable) |
+| `10521` | SNIP-05 | Pool Identity (replaceable) |
+| `35502` | SNIP-02 | Hashrate & Telemetry |
+| `35500` | SNIP-03 | Unpaid Block Invoice (pool) |
+| `35501` | SNIP-03 | Settled Block Invoice (pool) |
+| `35503` | SNIP-03 | Pending Miner Share |
+| `35504` | SNIP-03 | Finalized Miner Share |
+| `35505` | SNIP-03 | Share Payment |
+| `35510` | SNIP-04 | Raw Printing / AuxPoW |
+
+## Usually_90
+
+A pragmatic Sharenote probability preset representing the difficulty label a setup will produce **at least 90% of the time** within a target window. This is the recommended baseline for general hashrate estimation.
+
+## Almost_999
+
+A conservative Sharenote probability preset representing the difficulty label a setup will produce **99.9% of the time** within a given window. Useful for setting guaranteed network access minimums.
+
+## Continuous Difficulty (`D`)
+
+The exact mathematical density of a Physical Share, expressed as a precise floating-point value in linear space: `D = 2^256 / T` where `T` is the 256-bit target threshold.
+
+Because Z-Bits are logarithmic, you cannot add them directly. All aggregation must first convert Z-Bits to Continuous Difficulty, sum in linear space, then convert back. See [The Strict Aggregation Law](/learn/the-z-bit-standard) and the formal definition in [SNIP-00](/specifications/snip-00).
+
+## Exponential Moving Average (EMA)
+
+A type of moving average that places greater weight on the most recent data points. In Sharenote work broadcasting, EMA is used to smooth the inherent variance of proof-of-work, providing a stable "current hashrate" reading that responds quickly to hardware status changes.
+
+## AuxPoW (Merged Mining)
+
+A technique where a miner's work on one blockchain simultaneously counts as valid proof-of-work on another blockchain. SNIP-04 defines how Sharenote handles AuxPoW submissions via Kind 35510.
+
+In the Sharenote market, AuxPoW is the mechanism by which Hashrate Providers solve user interaction feeds — upvotes, agent requests, data validation jobs — alongside their primary chain work, at zero additional cost.

@@ -8,7 +8,7 @@
           <svg class="ml-3 shrink-0 transition-transform group-open:rotate-180" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="text-[var(--ink-muted)] px-4 pb-4 text-sm md:text-base leading-relaxed">
-          A sharenote is a miner-controlled proof-of-work note. Each printed share gets signed with the miner’s identity key and broadcast so it can be tracked, spent, or burned.
+          A sharenote is a miner-controlled proof-of-work note. Each printed share gets signed with the miner’s identity key and broadcast so it can be tracked and spent.
         </div>
       </details>
 
@@ -28,7 +28,7 @@
           <svg class="ml-3 shrink-0 transition-transform group-open:rotate-180" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="text-[var(--ink-muted)] px-4 pb-4 text-sm md:text-base leading-relaxed">
-          Sharenote is in the WBET (Without Breaking Existing Things) stage. Draft FEPs and prototypes are rolling out, so miners can test the flow without changing their current experience.
+          Sharenote integrates natively into your existing Stratum setup. The core specifications (SNIPs) are in Draft and the protocol is implemented via the <a href="/the-market/vibe-coding" class="underline">Sharenote skill</a> for AI-assisted development. Miners can connect today without changing their current pool relationships or hardware configuration.
         </div>
       </details>
 
@@ -38,27 +38,27 @@
           <svg class="ml-3 shrink-0 transition-transform group-open:rotate-180" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="text-[var(--ink-muted)] px-4 pb-4 text-sm md:text-base leading-relaxed">
-          During the WBET (Without Breaking Existing Things) stage, you keep your normal mining stack, add the lightweight sidecar, and point it at the work template supplied by your work provider. When your hardware solves a share that meets the target, the sidecar signs it and publishes the sharenote.
+          Keep your normal mining stack. Add the Stratum-side component, point it at your Source of Work's work template, and give it your Nostr private key. When your hardware solves a share that meets the target, the component signs it and publishes the sharenote to the relay network.
         </div>
       </details>
 
       <details class="group border-2 border-[var(--ink)] rounded-lg overflow-hidden hover:bg-[var(--hover-bg)] transition">
         <summary class="flex items-center gap-3 justify-between py-3 md:py-4 px-4 cursor-pointer text-base md:text-lg font-semibold">
-          Do I need new hardware or a different work provider?
+          Do I need new hardware or a different Source of Work?
           <svg class="ml-3 shrink-0 transition-transform group-open:rotate-180" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="text-[var(--ink-muted)] px-4 pb-4 text-sm md:text-base leading-relaxed">
-          No. Sharenote sits alongside your current setup. Your work provider still hands you work templates over stratum, and the sidecar does the extra signing and publishing.
+          No. Sharenote sits alongside your current setup. Your Source of Work still hands you work templates over Stratum, and the sidecar does the extra signing and publishing.
         </div>
       </details>
 
       <details class="group border-2 border-[var(--ink)] rounded-lg overflow-hidden hover:bg-[var(--hover-bg)] transition">
         <summary class="flex items-center gap-3 justify-between py-3 md:py-4 px-4 cursor-pointer text-base md:text-lg font-semibold">
-          What are work templates and work providers?
+          What are work templates and Sources of Work?
           <svg class="ml-3 shrink-0 transition-transform group-open:rotate-180" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="text-[var(--ink-muted)] px-4 pb-4 text-sm md:text-base leading-relaxed">
-          A work provider—today, your mining pool—hands out the puzzle your hardware solves. That puzzle bundle is the work template: the target hash, block data, and rules you choose to print sharenotes against.
+          A Source of Work — today, your mining pool — hands out the puzzle your hardware solves. That puzzle bundle is the work template: the target hash, block data, and rules you choose to print sharenotes against.
         </div>
       </details>
 
@@ -68,17 +68,17 @@
           <svg class="ml-3 shrink-0 transition-transform group-open:rotate-180" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="text-[var(--ink-muted)] px-4 pb-4 text-sm md:text-base leading-relaxed">
-          You can spend them on social engagements, resolving coin-mining blocks, buying intelligence, or other WoF flows as they go live.
+          You can spend them on sorting feeds, weighting upvotes, establishing consensus for AI agent requests, or auditing mining payouts.
         </div>
       </details>
 
       <details class="group border-2 border-[var(--ink)] rounded-lg overflow-hidden hover:bg-[var(--hover-bg)] transition">
         <summary class="flex items-center gap-3 justify-between py-3 md:py-4 px-4 cursor-pointer text-base md:text-lg font-semibold">
-          What if my work provider ignores Sharenote?
+          What if my Source of Work ignores Sharenote?
           <svg class="ml-3 shrink-0 transition-transform group-open:rotate-180" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="text-[var(--ink-muted)] px-4 pb-4 text-sm md:text-base leading-relaxed">
-          You can still publish sharenotes to keep your own audit trail. Public records make it easier for miners and the community to ask work providers to adopt the standard.
+          You can still publish sharenotes to keep your own audit trail. Public records make it easier for miners and the community to ask Sources of Work to adopt the standard.
         </div>
       </details>
 

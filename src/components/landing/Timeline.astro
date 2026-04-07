@@ -1,15 +1,16 @@
 ---
 const items = [
-  { label: 'First Age', img: '/timeline/note-2.png' },
-  { label: 'Middle Age',  img: '/timeline/note-3.png' },
-  { label: 'Yesterday',  img: '/timeline/note-4.png' },
-  { label: 'Now',  img: '/timeline/note-5.png' },
+  { label: 'First Age',   img: '/timeline/note-2.png', desc: 'The object was the value.' },
+  { label: 'Middle Age',  img: '/timeline/note-3.png', desc: 'Authority stamped the value.' },
+  { label: 'Yesterday',   img: '/timeline/note-4.png', desc: 'Paper promised the value.' },
+  { label: 'Today',       img: '/timeline/note-5.png', desc: 'Print says value — nothing backs it.' },
 ];
 ---
 <section id="timeline" class="py-16 timeline-section">
   <div class="mx-auto max-w-[1040px] px-6">
-    <h2 class="text-center mb-4 md:mb-6 text-2xl md:text-3xl lg:text-4xl leading-snug font-bold">Evolution of Notes</h2>
-    <div class="timeline-scroller">
+    <h2 class="text-center mb-2 md:mb-3 text-2xl md:text-3xl lg:text-4xl leading-snug font-bold">The History of Value</h2>
+    <p class="timeline-subtitle">What makes a note worth holding?</p>
+    <div class="timeline-scroller" id="timeline-scroller">
       <div class="timeline-flow" id="timeline-flow">
         <div class="cap start-cap" aria-hidden="true"></div>
         {items.map((it, idx) => (
@@ -25,6 +26,7 @@ const items = [
               </figure>
               <figcaption class="note-caption">
                 <div class="note-era">{it.label}</div>
+                <p class="note-desc">{it.desc}</p>
               </figcaption>
             </div>
           ); })()}
@@ -76,7 +78,7 @@ const items = [
     /*
       We derive a deep, low-glare surface by blending the light-theme hues
       into the dark page background. The brown accent (#82643d) anchors the
-      section’s identity in dark mode without introducing harsh contrast.
+      section's identity in dark mode without introducing harsh contrast.
     */
     --tl-bg: color-mix(in oklab, #82643d 22%, var(--bg));
     --next-bg: color-mix(in oklab, #edf9c5 16%, var(--bg));
@@ -121,35 +123,58 @@ const items = [
       var(--next-bg) 100%
     );
   }
-  .timeline-scroller { position: relative; }
+
+  /* Eyebrow label above the heading */
+  .timeline-eyebrow {
+    text-align: center;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--tl-line);
+    opacity: 0.75;
+    margin-bottom: 0.4rem;
+  }
+
+  /* Subtitle below the heading */
+  .timeline-subtitle {
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--tl-ink-muted);
+    max-width: 44ch;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+  }
+  .evolution-arrow {
+    display: inline-block;
+    font-size: 1.1em;
+    margin-left: 0.15em;
+    opacity: 0.6;
+    vertical-align: middle;
+    animation: nudge-right 1.8s ease-in-out infinite;
+  }
+  @keyframes nudge-right {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
+  }
+
+  /* Embla viewport — Embla owns overflow, cursor, and drag */
+  .timeline-scroller {
+    position: relative;
+    overflow: hidden; /* Embla requires overflow:hidden on the viewport */
+    cursor: grab;
+    user-select: none;
+  }
+  .timeline-scroller:active { cursor: grabbing; }
   @media (min-width: 768px) {
     .timeline-scroller {
-      /* True full-bleed width without growing the document */
       width: 100vw;
       margin-inline: calc(50% - 50vw);
       box-sizing: border-box;
-      overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-      padding: 0 56px; /* generous edge space so cards never touch viewport */
-      /* Center items on snap */
-      scroll-padding-left: 50%;
-      scroll-padding-right: 50%;
-      /* Hide scrollbar visuals while keeping scrolling */
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE/Edge */
-      cursor: grab;
     }
-    .timeline-scroller.no-overflow { scroll-snap-type: none; cursor: default; }
-    .timeline-scroller.auto-scroll { scroll-snap-type: none; }
-    .timeline-scroller::-webkit-scrollbar { display: none; }
-    /* Edge fades removed to avoid overlay on cards */
   }
 
-  /* Drag state disables snap and selection for smooth panning */
-  @media (min-width: 768px) {
-    .timeline-scroller.dragging { cursor: grabbing; scroll-snap-type: none; }
-    .timeline-scroller.dragging * { user-select: none; }
-  }
-
+  /* Embla container — must be flex row with no shrink */
   .timeline-flow {
     display: flex;
     flex-direction: column;
@@ -157,12 +182,30 @@ const items = [
     gap: 14px;
   }
   @media (min-width: 768px) {
-    .timeline-flow { flex-direction: row; gap: 0; justify-content: center; }
+    .timeline-flow {
+      flex-direction: row;
+      gap: 0;
+      justify-content: center; /* centres when all cards fit (no Embla) */
+      will-change: transform;
+    }
+    /* When Embla is active, it controls positioning via transforms —
+       justify-content: center would fight it and push cards off-screen */
+    .timeline-flow.embla-active {
+      justify-content: flex-start;
+    }
   }
 
-  .timeline-item { display: flex; flex-direction: column; align-items: center; }
+  .timeline-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
   @media (min-width: 768px) {
-    .timeline-item { scroll-snap-align: center; scroll-snap-stop: always; }
+    .timeline-item {
+      flex: 0 0 auto;
+      min-width: 0;
+      padding: 0; /* no padding — connectors provide the spacing */
+    }
   }
 
   .note-card {
@@ -212,202 +255,111 @@ const items = [
   }
   :global(.dark) .note-card::after { opacity: 0.35; }
   :global(.dark) .note-card::before { opacity: 0.25; }
-  .note-caption { text-align: center; margin-top: 4px; }
-  .note-era { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tl-line); }
+  .note-caption { text-align: center; margin-top: 8px; }
+  .note-era { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tl-line); font-weight: 700; }
   .note-year { font-weight: 800; font-size: clamp(18px, 3.2vw, 28px); }
+  .note-desc {
+    margin: 5px auto 0;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--tl-ink-muted);
+    max-width: min(68vw, 260px);
+    text-align: center;
+  }
 
 
-  /* Connector between items switches orientation */
-  .timeline-connector { background: var(--tl-line); opacity: 0.55; width: 2px; height: 32px; border-radius: 2px; pointer-events: none; }
+  /* Connector between items: vertical on mobile, horizontal on desktop */
+  .timeline-connector {
+    background: var(--tl-line); opacity: 0.55;
+    width: 2px; height: 32px; border-radius: 2px; pointer-events: none;
+  }
   :global(.dark) .timeline-connector { opacity: 0.6; }
   @media (min-width: 768px) {
-    /* Horizontal connector creates spacing between cards (no flex gap) */
     .timeline-connector {
-      height: 2px; width: 20px; align-self: center;
-      /* provide breathing room so it doesn't touch cards */
-      margin-left: 8px; margin-right: 8px;
-      /* total space consumed between cards = width + margins */
-      flex: 0 0 36px;
-      /* shift up roughly half the caption height so it aligns to card center */
-      /* transform: translateY(-18px); */
+      height: 2px;
+      width: 20px;
+      flex: 0 0 52px; /* 16px gap + 20px line + 16px gap */
+      margin: 0 16px;
+      align-self: center;
+      transform: translateY(-25px);
     }
   }
 
-  /* Caps create breathing room at both extremes when horizontal */
+  /* Caps: breathing room at carousel edges */
   .cap { display: none; }
   @media (min-width: 768px) {
     .cap { display: block; flex: 0 0 56px; height: 1px; }
   }
-
-  /* No arrow UI on desktop/tablet; scroll with trackpad/mouse */
 </style>
 
 <script>
-  (function () {
-    const flow = document.getElementById('timeline-flow');
-    if (!flow) return;
-    const scroller = flow.parentElement; // .timeline-scroller
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const mq = window.matchMedia('(min-width: 768px)');
+  import EmblaCarousel from 'embla-carousel';
+  import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
 
-    let raf = 0;
-    let last = 0;
-    let dir = 1; // 1 => right, -1 => left
-    let running = false;
-    let userStopped = false;
-    const SPEED = 48; // px per second
+  const viewport = document.getElementById('timeline-scroller');
+  const flow = document.getElementById('timeline-flow');
+  const mq = window.matchMedia('(min-width: 768px)');
 
-    function step(ts) {
-      if (!running) return;
-      if (!last) last = ts;
-      const dt = (ts - last) / 1000;
-      last = ts;
+  let embla: ReturnType<typeof EmblaCarousel> | null = null;
 
-      const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-      if (maxScroll <= 0) { stop(); return; }
+  /** Returns true when the card strip is wider than the visible viewport */
+  function hasOverflow() {
+    return flow!.scrollWidth > viewport!.clientWidth + 4; // 4px tolerance
+  }
 
-      let x = scroller.scrollLeft + dir * SPEED * dt;
-      if (x <= 0) { x = 0; dir = 1; }
-      else if (x >= maxScroll) { x = maxScroll; dir = -1; }
-      scroller.scrollLeft = x;
-      raf = requestAnimationFrame(step);
+  function initEmbla() {
+    if (!viewport || !flow) return;
+
+    // If no overflow, cards fit — CSS justify-content:center handles it
+    if (!hasOverflow()) {
+      destroyEmbla();
+      return;
     }
 
-    function hasOverflow() { return scroller.scrollWidth > scroller.clientWidth + 1; }
-    function updateOverflowState() {
-      const overflow = hasOverflow();
-      scroller.classList.toggle('no-overflow', !overflow);
-    }
+    // Already running
+    if (embla) return;
 
-    function start() {
-      if (running || userStopped) return;
-      if (!mq.matches || prefersReduced.matches) return;
-      if (!scroller || !hasOverflow()) { updateOverflowState(); return; }
-      updateOverflowState();
-      running = true; last = 0;
-      scroller.classList.add('auto-scroll');
-      raf = requestAnimationFrame(step);
-    }
+    flow.classList.add('embla-active');
 
-    function stop(removeClass = true) {
-      if (!running) return;
-      running = false;
-      cancelAnimationFrame(raf);
-      if (removeClass) scroller.classList.remove('auto-scroll');
-    }
+    embla = EmblaCarousel(viewport, {
+      loop: false,
+      align: 'center',         // center each slide in viewport — makes last card reachable
+      containScroll: 'keepSnaps', // constrain scroll range but keep all snap points
+      dragFree: false,
+      startIndex: 0,
+      slides: '.timeline-item', // only .timeline-item elements are slides
+    }, [WheelGesturesPlugin()]);
 
-    function stopByUser() {
-      userStopped = true;
-      // pause exactly where it is and keep snap disabled
-      stop(false);
-    }
-
-    // Stop on any user intent to interact
-    scroller.addEventListener('wheel', stopByUser, { passive: true });
-    scroller.addEventListener('touchstart', stopByUser, { passive: true });
-    scroller.addEventListener('pointerdown', stopByUser, { passive: true });
-    scroller.addEventListener('mousedown', stopByUser);
-    window.addEventListener('keydown', stopByUser);
-
-    // React to environment changes
-    mq.addEventListener?.('change', () => { if (!mq.matches) stop(); else if (!userStopped) start(); });
-    prefersReduced.addEventListener?.('change', () => { if (prefersReduced.matches) stopByUser(); else if (!userStopped) start(); });
-    window.addEventListener('resize', () => { updateOverflowState(); if (!userStopped) { stop(); start(); } });
-
-    // Start when images finish loading (ensures overflow exists)
-    const imgs = flow.querySelectorAll('img');
-    let pending = imgs.length;
-    if (pending === 0) {
-      // no images to wait on
-      setTimeout(() => { updateOverflowState(); if (!userStopped) start(); }, 50);
-    } else {
-      imgs.forEach((img) => {
-        if (img.complete) {
-          if (--pending === 0 && !userStopped) { updateOverflowState(); start(); }
-        } else {
-          img.addEventListener('load', () => { if (--pending === 0 && !userStopped) { updateOverflowState(); start(); } }, { once: true });
-          img.addEventListener('error', () => { if (--pending === 0 && !userStopped) { updateOverflowState(); start(); } }, { once: true });
-        }
-      });
-    }
-
-    // Only run when the timeline is actually visible
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver((entries) => {
-        const entry = entries[0];
-        if (!entry) return;
-        if (entry.isIntersecting) {
-          if (!userStopped) start();
-        } else {
-          stop();
-        }
-      }, { root: null, threshold: 0.2 });
-      io.observe(scroller);
-    }
-
-    // Pause when tab is hidden, resume when visible (unless user stopped)
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) stop();
-      else if (!userStopped) start();
+    // Re-check overflow on resize (e.g. window grows wide enough to fit all)
+    embla.on('resize', () => {
+      if (!hasOverflow()) {
+        destroyEmbla();
+      }
     });
+  }
 
-    // Kick off after layout settles (safety net)
-    requestAnimationFrame(updateOverflowState);
-    setTimeout(() => { if (!userStopped) start(); }, 150);
-  })();
-
-  // Enable click-and-drag panning of the horizontal scroller on desktop
-  (function enableDragScroll() {
-    const flow = document.getElementById('timeline-flow');
-    if (!flow) return;
-    const scroller = flow.parentElement; // .timeline-scroller
-    if (!scroller) return;
-
-    let dragging = false;
-    let startX = 0;
-    let startLeft = 0;
-    let lastX = 0;
-    let lastT = 0;
-    let vx = 0; // pixels per ms
-    let momentumId = 0;
-
-    function stopMomentum() { cancelAnimationFrame(momentumId); momentumId = 0; }
-    function momentumStep() {
-      if (Math.abs(vx) < 0.02) { scroller.classList.remove('dragging'); return; }
-      scroller.scrollLeft -= vx * 16; // approx 60fps frame time
-      vx *= 0.94; // friction
-      momentumId = requestAnimationFrame(momentumStep);
+  function destroyEmbla() {
+    if (embla) {
+      embla.destroy();
+      embla = null;
     }
+    if (flow) flow.classList.remove('embla-active');
+  }
 
-    function onPointerDown(ev) {
-      if (ev.pointerType === 'touch') return; // touch already scrolls naturally
-      if (scroller.scrollWidth <= scroller.clientWidth) return;
-      dragging = true; stopMomentum();
-      scroller.classList.add('dragging');
-      startX = ev.clientX; startLeft = scroller.scrollLeft; lastX = startX; lastT = performance.now();
-      try { scroller.setPointerCapture(ev.pointerId); } catch {}
+  function handleBreakpoint() {
+    if (mq.matches) {
+      // Desktop: conditionally init based on overflow
+      initEmbla();
+    } else {
+      // Mobile: vertical stack, no carousel
+      destroyEmbla();
     }
-    function onPointerMove(ev) {
-      if (!dragging) return;
-      const dx = ev.clientX - startX;
-      scroller.scrollLeft = startLeft - dx;
-      const now = performance.now();
-      const dt = now - lastT || 16;
-      vx = (ev.clientX - lastX) / dt;
-      lastX = ev.clientX; lastT = now;
-      ev.preventDefault();
-    }
-    function onPointerUp(ev) {
-      if (!dragging) return;
-      dragging = false;
-      try { scroller.releasePointerCapture(ev.pointerId); } catch {}
-      // Start momentum if velocity is significant
-      if (Math.abs(vx) > 0.04) momentumStep(); else scroller.classList.remove('dragging');
-    }
-    scroller.addEventListener('pointerdown', onPointerDown, { passive: true });
-    scroller.addEventListener('dragstart', (e) => e.preventDefault());
-    window.addEventListener('pointermove', onPointerMove, { passive: false });
-    window.addEventListener('pointerup', onPointerUp, { passive: true });
-    window.addEventListener('pointercancel', onPointerUp, { passive: true });
-  })();
+  }
+
+  // Init on load + listen for breakpoint changes
+  handleBreakpoint();
+  mq.addEventListener('change', handleBreakpoint);
+
+  // Also re-check after fonts/images finish loading (can shift widths)
+  window.addEventListener('load', handleBreakpoint);
 </script>

@@ -114,11 +114,11 @@ h1 {
 }
 
 h2 {
-  @apply mt-5 scroll-m-20 text-3xl font-semibold tracking-wide transition-colors first:mt-0;
+  @apply mt-12 scroll-m-20 text-3xl font-semibold tracking-wide transition-colors first:mt-0;
 }
 
 h3 {
-  @apply mt-3 scroll-m-20 text-2xl font-semibold tracking-tight;
+  @apply mt-8 scroll-m-20 text-2xl font-semibold tracking-tight;
 }
 
 h4 {
@@ -126,7 +126,7 @@ h4 {
 }
 
 p {
-  @apply leading-7 [&:not(:first-child)]:mt-2;
+  @apply leading-[1.8] [&:not(:first-child)]:mt-4;
 }
 
 a {
@@ -134,7 +134,11 @@ a {
 }
 
 blockquote {
-  @apply mt-6 border-l-2 pl-6 italic border-primary;
+  @apply mt-5 mb-4 border-l-4 border-primary bg-secondary/30 pl-5 pr-4 py-3 rounded-r not-italic text-foreground/90;
+}
+
+hr {
+  display: none;
 }
 
 pre {
@@ -154,15 +158,15 @@ table {
 }
 
 tr {
-  @apply m-0 border-t p-0 even:bg-muted;
+  @apply border-b border-border;
 }
 
 th {
-  @apply border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right;
+  @apply px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground [&[align=center]]:text-center [&[align=right]]:text-right;
 }
 
 td {
-  @apply border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right;
+  @apply px-4 py-2.5 text-left text-sm [&[align=center]]:text-center [&[align=right]]:text-right;
 }
 
 .lead {
@@ -198,10 +202,28 @@ td {
 }
 *::-webkit-scrollbar-thumb:hover { background: color-mix(in oklab, var(--ink) 70%, transparent); }
 
+/* ===== KaTeX: hide MathML annotation (accessible but invisible) ===== */
+.katex-mathml {
+  position: absolute !important;
+  clip: rect(1px, 1px, 1px, 1px) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/* Display math: center and add vertical spacing */
+.katex-display {
+  display: block !important;
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
 /* ===== codeblock ===== */
 
 .astro-code {
-  @apply p-4 mt-2;
+  @apply p-4 mt-4;
   /* Use palette-friendly background in light theme */
   background-color: var(--code-bg) !important;
 }

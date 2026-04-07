@@ -1,0 +1,127 @@
+---
+import { Cpu, Server, Network, Activity, CheckCircle, Eye } from "lucide-react";
+
+/**
+ * PipelineSchema.astro
+ * A high-fidelity visual representation of the Sharenote data flow.
+ */
+---
+
+<div class="not-prose my-12 overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0B] p-8 shadow-2xl">
+  <div class="relative">
+    <!-- SVG Overlay: Positioned absolutely relative to the grid wrapper -->
+    <svg class="pointer-events-none absolute inset-0 hidden h-full w-full opacity-40 md:block" viewBox="0 0 1000 200" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#3B82F6" stop-opacity="0" />
+            <stop offset="50%" stop-color="#3B82F6" stop-opacity="1" />
+            <stop offset="100%" stop-color="#3B82F6" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+
+        <!-- Main Flow Lines -->
+        <path d="M 125 100 L 375 100" stroke="url(#flowGradient)" fill="none" stroke-width="2" stroke-dasharray="8 8" />
+        <path d="M 375 100 L 625 100" stroke="url(#flowGradient)" fill="none" stroke-width="2" stroke-dasharray="8 8" />
+        <path d="M 625 100 L 875 100" stroke="url(#flowGradient)" fill="none" stroke-width="2" stroke-dasharray="8 8" />
+        
+        <!-- Payout Return Curve -->
+        <path d="M 375 130 Q 250 180 125 130" class="stroke-emerald-500/20" fill="none" stroke-width="2" stroke-dasharray="4 4" />
+        
+        <!-- Animated Particles -->
+        <circle r="4" fill="#60A5FA" class="filter blur-[2px]">
+          <animateMotion dur="3s" repeatCount="indefinite" path="M 125 100 L 375 100" />
+        </circle>
+        <circle r="2" fill="#FFFFFF">
+          <animateMotion dur="3s" repeatCount="indefinite" path="M 125 100 L 375 100" />
+        </circle>
+
+        <circle r="4" fill="#60A5FA" class="filter blur-[2px]">
+          <animateMotion dur="3s" repeatCount="indefinite" path="M 375 100 L 625 100" begin="1.5s" />
+        </circle>
+        <circle r="2" fill="#FFFFFF">
+          <animateMotion dur="3s" repeatCount="indefinite" path="M 375 100 L 625 100" begin="1.5s" />
+        </circle>
+
+        <circle r="3" fill="#34D399" class="filter blur-[1px]">
+           <animateMotion dur="4s" repeatCount="indefinite" path="M 375 130 Q 250 180 125 130" />
+        </circle>
+    </svg>
+
+    <!-- Grid: The nodes that the SVG "wires" connect -->
+    <div class="relative grid grid-cols-1 gap-8 md:grid-cols-4">
+      <!-- Node 1 -->
+      <div class="relative flex flex-col items-center justify-center space-y-4 rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-center backdrop-blur-sm shadow-lg shadow-blue-500/5">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400">
+          <Cpu size={28} />
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-white">Hardware</h4>
+          <p class="mt-1 text-xs text-zinc-500 uppercase tracking-widest">ASIC / GPU</p>
+        </div>
+      </div>
+
+      <!-- Node 2 -->
+      <div class="relative flex flex-col items-center justify-center space-y-4 rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-center backdrop-blur-sm">
+         <div class="absolute -top-3 -right-3 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+          Stratum
+        </div>
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
+          <Server size={28} />
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-white">Mining Pool</h4>
+          <p class="mt-1 text-xs text-zinc-500 uppercase tracking-widest">Source of Work</p>
+        </div>
+      </div>
+
+      <!-- Node 3 -->
+      <div class="relative flex flex-col items-center justify-center space-y-4 rounded-2xl border border-blue-500/30 bg-blue-500/5 p-6 text-center backdrop-blur-sm ring-1 ring-blue-500/20 shadow-xl shadow-blue-500/10">
+         <div class="absolute -top-3 -right-3 flex items-center gap-1.5 rounded-full bg-blue-500/20 px-2.5 py-0.5 text-[10px] font-bold text-blue-400 border border-blue-500/30">
+          <span class="relative flex h-1.5 w-1.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
+          </span>
+          Nostr
+        </div>
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/20 text-blue-400">
+          <Activity size={28} />
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-white">Relay Network</h4>
+          <p class="mt-1 text-xs text-zinc-500 uppercase tracking-widest">Broadcast Hub</p>
+        </div>
+      </div>
+
+      <!-- Node 4 -->
+      <div class="relative flex flex-col items-center justify-center space-y-4 rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-center backdrop-blur-sm shadow-sm">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400">
+          <Eye size={28} />
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-white">Watchtowers</h4>
+          <p class="mt-1 text-xs text-zinc-500 uppercase tracking-widest">Dashboards / Apps</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend / Info -->
+  <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-white/5 pt-6">
+    <div class="flex items-center gap-3">
+      <div class="flex-shrink-0 h-2 w-2 rounded-full bg-blue-400 shadow-[0_0_8px_#60A5FA]"></div>
+      <p class="text-xs text-zinc-400 leading-snug">The Stratum-side component <span class="text-white font-medium">publishes your work to the relay</span> while Stratum keeps sending shares to your pool — simultaneously, unchanged.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="flex-shrink-0 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34D399]"></div>
+      <p class="text-xs text-zinc-400 leading-snug">The pool <span class="text-white font-medium">signs and publishes payout records</span> to the relay. Any miner or app can independently verify their proportional share.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+    @keyframes pulse-ring {
+        0% { transform: scale(0.95); opacity: 0.5; }
+        50% { transform: scale(1.05); opacity: 0.2; }
+        100% { transform: scale(0.95); opacity: 0.5; }
+    }
+</style>

@@ -1,0 +1,40 @@
+---
+title: "How It Works"
+description: "How Sharenote turns computational work into portable, verifiable denominated notes — and how those notes are recorded on an open network."
+---
+
+import PipelineSchema from "@/components/docs/PipelineSchema.astro";
+
+## Denominations and Energy
+
+Every Sharenote has a denomination — a label like `20Z00` or `34Z10`. That denomination is not assigned by any authority. It is computed directly from the energy your hardware spent to produce the note.
+
+More energy spent = higher denomination. The denomination is a direct mathematical record of work done, stamped into the note at the moment of printing. It cannot be changed after the fact.
+
+## The Open Relay Layer
+
+Sharenote publishes every printed note as a signed record on **Nostr** — an open network of independent servers that anyone can read and no one controls. Your note is signed with your identity before publishing. The signature makes it tamper-proof: any relay that alters the content breaks the signature automatically.
+
+Any party — a miner, an application, a researcher, an auditor — can read those records at any time, at any relay, without asking anyone for permission.
+
+## One Press, Multiple Claims
+
+A computation that meets a high difficulty target automatically meets all lower targets too. A note printed at `34Z10` simultaneously satisfies any target below it.
+
+Sharenote captures all of those claims at once. Your hardware runs at full capacity on one puzzle — the Stratum-side component publishes the result everywhere it qualifies.
+
+**Concrete example**: Your hash hardware solves a puzzle. The Stratum component checks it against every configured target:
+
+1. Hash meets the **primary pool's** difficulty → submitted to your pool via Stratum (unchanged)
+2. Same hash meets a **secondary AuxPoW chain's** difficulty → submitted there too
+3. The full work record is signed with your Nostr key and published to the relay network
+
+One computation. Your pool gets the share. The secondary chain gets a valid proof (share or block). The relay gets the public record. No hashrate was split.
+
+## The Full Pipeline
+
+<PipelineSchema />
+
+Independent observers — called **Watchtowers** — connect to the relay network and reconstruct the complete history of printed notes, pool settlements, and miner contributions from public records. Their state is derived directly from the relay — no pool cooperation required.
+
+→ Continue to [The Z-Bit Standard](/learn/the-z-bit-standard) for the math behind denominations.

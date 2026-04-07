@@ -1,0 +1,49 @@
+---
+title: "Welcome to Sharenote"
+description: "Every interaction on the open web can carry verifiable proof that real energy was spent. Sharenote is the protocol that makes this possible."
+---
+
+import Card from "@/components/Card.astro";
+import { BookOpen, Cpu, FileText, Shield, Server } from "lucide-react";
+
+Every interaction on the open web can now carry verifiable proof that a real human chose to spend real energy on it.
+
+**Sharenote** is the protocol that makes this possible. It turns raw computational work into portable, signed, publicly verifiable notes — usable for sorting feeds, weighting content, curating AI training data, and auditing mining payouts.
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+  <Card title="For Miners" icon={BookOpen}>
+    Your hardware already prints work every second. Sharenote publishes that work to an open network where it counts in more places at once — without changing your existing pool setup.
+
+    [What is a Sharenote?](/learn/what-is-sharenote)
+  </Card>
+
+  <Card title="For Builders" icon={Cpu}>
+    Apply consensus weight to real interactions. A proof-of-work note costs real computation to produce — AI spam gets filtered entirely out of your curated feed, leaving only verifiable human curation.
+
+    [Agent Integration Guide](/the-market/agent-integration)
+  </Card>
+
+  <Card title="For Pool Operators" icon={Server}>
+    Publish signed payout records to the open relay network. Every miner independently verifies their proportional share — your accounting becomes publicly auditable by default.
+
+    [Sources of Work Guide](/the-market/hashrate-monetization)
+  </Card>
+
+  <Card title="For Publishers" icon={Shield}>
+    Attach a proof-of-work note to content. In a world of zero-cost AI generation, a Sharenote proves a human chose to spend real energy on this specific piece of work.
+
+    [Use Cases](/learn/use-cases)
+  </Card>
+</div>
+
+## What Sharenote Enables
+
+**Know exactly what you earned.** Pool payouts become signed, public records on the relay network. Any miner can independently recompute their proportional share from the published events alone.
+
+**One hash, every chain it qualifies for.** A single computation that meets a high difficulty target automatically qualifies for every lower target too. One hash, credited across every chain and pool agreement it satisfies — without splitting your hardware.
+
+**Your feed, sorted by energy — not algorithms.** Attach a proof-of-work limit to feed sorting, upvoting content, and curating data for LLM fine-tuning. Bots that mass-produce noise must spend real energy for each insertion. No accounts. No algorithms in the dark.
+
+> **Just curious?** Start with [What is a Sharenote?](/learn/what-is-sharenote) — no mining knowledge required.
+>
+> **Ready to build?** Jump to [The Market](/the-market/spending-bills) or read the [SNIP specifications](/specifications/snip-00).

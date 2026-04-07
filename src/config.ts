@@ -11,10 +11,10 @@ export const ANALYTICS = {
 export const SITE = {
   website: "https://sharenote.xyz",
   author: "soprinter",
-  desc: "Sharenote is a proof-of-work note where each accepted share mints a signed, spendable record of work. It brings transparency to mining by allowing miners to own their payouts, track templates, and use their sharenotes across work-based economies.",
+  desc: "Sharenote is a proof-of-work protocol that turns raw computational energy into portable, verifiable notes — usable for sorting feeds, weighting content, curating AI training data, and auditing mining payouts.",
   title: "Sharenote",
   ogImage: "og-image.png",
-  repo: "https://github.com/soprinter/sharenote",
+  repo: "https://github.com/soprinter",
 };
 
 export const LOCALE = {
@@ -23,25 +23,43 @@ export const LOCALE = {
 } as const;
 
 export const menu_items: { title: string; href: string }[] = [
-  // {
-  //   title: "Home",
-  //   href: "/",
-  // },
+  {
+    title: "Learn",
+    href: "/learn/introduction",
+  },
+  {
+    title: "The Market",
+    href: "/the-market/spending-bills",
+  },
+  {
+    title: "Specifications",
+    href: "/specifications/snip-00",
+  },
 ];
 
 // Just works with top-level folders and files. For files, don't add extension as it looks for the slug, and not the file name.
 export const side_nav_menu_order: string[] = [
-  // Top-level docs order matches yay.mdx TOC
-  "introduction",
-  "motivation-and-goals",
-  "how-sharenote-works",
-  "architecture",
-  "workflow-wbet-stage",
-  "benefits-and-use-cases",
-  "getting-started",
-  "draft-fep-and-nip-development",
-  "faqs",
-  "resources",
+  "learn",
+  "learn/introduction",
+  "learn/what-is-sharenote",
+  "learn/use-cases",
+  "learn/how-it-works",
+  "learn/the-z-bit-standard",
+  "learn/learn-by-example",
+  "learn/glossary",
+  "the-market",
+  "the-market/spending-bills",
+  "the-market/agent-integration",
+  "the-market/hashrate-monetization",
+  "the-market/planner-calculator",
+  "the-market/vibe-coding",
+  "the-market/faqs",
+  "specifications",
+  "specifications/snip-00",
+  "specifications/snip-02",
+  "specifications/snip-03",
+  "specifications/snip-04",
+  "specifications/snip-05",
 ];
 
 // Don't delete anything. You can use 'true' or 'false'.

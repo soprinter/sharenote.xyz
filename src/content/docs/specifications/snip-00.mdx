@@ -1,0 +1,111 @@
+---
+title: "SNIP-00: Core Math"
+description: "Protocol Terminology & Core Mathematical Constraints"
+---
+
+## Status
+Stable
+
+## Motivation
+Proof-of-work difficulty exists on a logarithmic scale — a single Z-Bit increase doubles the computational work required. This property makes discrete labels (like `34Z10`) useful for human-readable communication, but mathematically invalid for aggregation. Summing labels directly produces results that are off by orders of magnitude.
+
+This specification establishes the mandatory conversion to linear space (Continuous Difficulty) before any aggregation operation, and defines the canonical label format derived from the result. All implementations, pool backends, and relay-side validators MUST conform to this math to guarantee interoperability across the Sharenote network.
+
+## Abstract
+This document establishes the base protocol definitions and mathematical laws governing Sharenote. It provides the vocabulary required across all Sharenote Improvement Proposals (SNIPs) to differentiate between proof-of-work execution (physical shares) and deterministic identifiers (Sharenote routing labels).
+
+## Terminology
+
+- **Sharenote**: A cryptographically verifiable unit of proof-of-work, expressed as a discrete text label (e.g., `34Z10`). It serves as a routing parameter and pricing floor for indexing engines. It MUST NOT be used for mathematical arithmetic.
+- **Z-Bits**: The base unit of difficulty measurement. Z-Bits represent difficulty on a logarithmic (log-2) scale.
+- **Physical Share**: The raw hash execution submitted by mining hardware — the actual proof that work was done.
+- **Continuous Difficulty ($D$)**: The exact mathematical density of the physical share execution, measured dynamically based on target thresholds. All accounting MUST use $D$, not the discrete label.
+- **Discrete Label**: A human-readable string (`XZYY` format, e.g., `34Z10`) where `X` is the integer Z-bit floor and `YY` is the truncated centi-bits. A label is a **floor declaration**, not a precise value.
+
+> New to these terms? See the [Glossary](/learn/glossary).
+
+## Specification
+
+### Computing Z-Bits from a Target
+
+For a given 256-bit target $T$:
+
+$$
+D = \frac{2^{256}}{T}
+$$
+
+$$
+B = \log_2(D)
+$$
+
+### Formatting a Discrete Label
+
+Given Z-bit value $B$:
+
+$$
+Z = \lfloor B \rfloor
+$$
+
+$$
+C = \lfloor (B - Z) \times 100 + 10^{-9} \rfloor
+$$
+
+$$
+\text{Label} = Z\text{Z}C \text{ (padded to 2 digits)}
+$$
+
+The label declares a minimum floor of at least `Z.C` bits of entropy. A validator MUST NOT use the label string to verify a target — it MUST recompute `D` from the raw hash.
+
+### The Strict Aggregation Law
+
+Summing discrete labels directly is mathematically invalid. All aggregation MUST operate in linear difficulty space:
+
+**Step 1.** Convert each Z-Bit value to Continuous Difficulty:
+
+$$
+D = 2^B
+$$
+
+**Step 2.** Sum all $D$ values:
+
+$$
+D_{\text{total}} = D_1 + D_2 + \dots + D_n
+$$
+
+**Step 3.** Convert back to Z-Bits:
+
+$$
+B_{\text{total}} = \log_2(D_{\text{total}})
+$$
+
+**Worked example:**
+
+`2Z00` + `10Z00`:
+
+$$
+D_1 = 2^2 = 4
+$$
+
+$$
+D_2 = 2^{10} = 1024
+$$
+
+$$
+D_{\text{total}} = 4 + 1024 = 1028
+$$
+
+$$
+B_{\text{total}} = \log_2(1028) \approx 10.006 \rightarrow \text{label } \texttt{10Z00} \text{, not } \texttt{12Z00}
+$$
+
+> **IEEE-754 Warning**: Standard 64-bit floats lose precision when accumulating millions of micro-shares. Pools MUST use rational number libraries or fixed-point arithmetic for long-running accumulators.
+
+> **Poisson Note**: Poisson probability distributions are used for *reliability estimation* — predicting the probability of producing a note within a given time window. This is distinct from the aggregation formula above and MUST NOT be conflated with it.
+
+## Rationale
+Continuous difficulty ensures pool accounting and independent tracking tools retain full fidelity without rounding errors native to integer-based pseudo-difficulty schemas.
+
+## Vibe Coding Integration
+Builders do not need to manually implement continuous difficulty floating-point logic. By invoking `npx skills add soprinter/skills --skill sharenote`, your AI assistant natively understands the strict mathematics outlined in this specification.
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)

@@ -1,0 +1,52 @@
+---
+title: "Learn by Example"
+description: "Understanding Sharenote utility through practical application scenarios."
+---
+
+Three concrete scenarios showing Sharenote in action. Start with the first — it requires no mining knowledge. Each scenario uses the same underlying proof-of-work math, applied to a different context.
+
+## Scenario 1: Consensus Weight for an AI Feed
+
+An application developer is building a feed where human interaction must surface above AI-generated noise. To ensure upvotes reflect real intention, they require verifiable consensus weight to rank a post. They establish a **`20Z00` Sharenote** as the prerequisite for high-visibility distribution.
+
+1. **The Request**: When a user upvotes, the client recognizes the consensus target.
+2. **The Outsource**: The client does not drain the user's battery. It seamlessly offloads the requirement to the open market, where dedicated Hashrate Providers physically solve the `20Z00` challenge via AuxPoW.
+3. **The Verification**: The backend receives the upvote with its attached proof, mathematically verifies its density, and permanently ranks the content based on its energy-backed weight.
+
+Builders can implement this verification flow natively through AI Vibe Coding. → [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
+
+For full integration details, see the [Agent Integration guide](/the-market/agent-integration).
+
+## Scenario 2: Simultaneous Multi-Chain Work
+
+> **Prerequisites**: This scenario assumes familiarity with mining pools, Stratum, and proof-of-work mining. See the [Glossary](/learn/glossary) if any terms are unfamiliar.
+
+A miner runs an Antminer S19 connected to a standard Bitcoin pool. In standard mining, they are locked to that pool's work template — one puzzle, one chain, one relationship.
+
+With Sharenote:
+
+1. The Stratum-side component receives the pool's work template natively (unchanged).
+2. The component simultaneously layers in additional consensus requests—such as weighting social feeds or validating data from the open market—alongside any secondary AuxPoW pool agreements.
+3. When the S19 solves a hash, the client checks every configured target. If the hash meets Bitcoin's difficulty: submitted to the primary pool. If it simultaneously meets a Market feed consensus target: also submitted there. Both happen from one solved hash.
+4. The full record of what work was distributed and what was solved is signed with the miner's Nostr key and published to the relay network — not sitting in any pool's private log.
+
+The miner does not split hashrate. The S19 runs at full capacity on one puzzle. The result is claimed simultaneously across every chain and agreement it qualifies for.
+
+→ To configure simultaneous AuxPoW targets on your hardware, follow the [Hashrate Monetization guide](/the-market/hashrate-monetization).
+
+## Scenario 3: Pool Publishing a Public Payout
+
+A mining pool finds a block. In standard mining, the pool privately records the reward and distributes payouts according to its internal ledger. Miners receive a payment and must trust the pool's calculation.
+
+With Sharenote (SNIP-03):
+
+1. The pool signs and publishes a **Kind 35500 Unpaid Invoice** to Nostr relays — declaring the block hash, block height, total reward in satoshis, and the aggregate pool difficulty.
+2. For each miner who contributed shares, the pool signs and publishes a **Kind 35503 Pending Share** event containing the miner's individual difficulty and the pool total.
+3. When the on-chain payout transaction hits the mempool, the pool signs a **Kind 35501 Settled Invoice** appending the transaction ID.
+4. Any miner, pool partner, or watchtower fetches these events directly from the relays and computes: `Miner_Payout = (Miner_Shares_D / Total_Shares_D) × Invoice_Amount` using the Continuous Difficulty values — no pool permission required.
+
+The pool's payout math becomes a public, auditable state-machine. A miner does not need to believe the pool's number — they can recompute it themselves from the signed events.
+
+All three scenarios use the same underlying Z-Bit mathematics. The log-linear math and verification rules are formally defined in the [SNIP specifications](/specifications/snip-00).
+
+→ Continue to [The Market](/the-market/spending-bills)

@@ -6,20 +6,30 @@ const { headings } = Astro.props as HeadingProps;
 const toc: HeadingHierarchy[] = createHeadingHierarchy(headings ?? []);
 const hasToC = toc.length > 1;
 
-// To pass the tailwindcss classes to the astro component
 const { class: className } = Astro.props;
 ---
 
 {
   hasToC && (
     <div class:list={["relative", className]}>
-      <h2 class="text-xl border-none italic">On This Page</h2>
-      <ul class="list-none m-0">
+      <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-3">
+        On This Page
+      </p>
+      <ul class="list-none m-0 p-0 border-l border-border">
         {toc.map((heading) => (
-          <li class=`${heading.depth === 2 ? "font-semibold" : "text-muted-foreground"}`>
-            <a href={`#${heading.slug}`} class="text-sm w-full leading-none no-underline">
+          <li class={`m-0 ${heading.depth === 3 ? "pl-4" : ""}`}>
+            <a
+              href={`#${heading.slug}`}
+              class:list={[
+                "block text-xs leading-relaxed no-underline py-1 px-3 rounded-r transition-colors duration-150",
+                "hover:text-foreground hover:bg-accent/40",
+                heading.depth === 2
+                  ? "text-foreground/80 font-medium"
+                  : "text-muted-foreground font-normal",
+              ]}
+            >
               {heading.text}
-              </a>
+            </a>
           </li>
         ))}
       </ul>

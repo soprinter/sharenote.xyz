@@ -1,0 +1,137 @@
+---
+title: "SNIP-03: Pool Accounting"
+description: "Decentralized pool accounting pipeline over Nostr."
+---
+
+## Status
+Draft
+
+## Abstract
+This proposal defines a public, cryptographically verifiable accounting pipeline for decentralized mining pools. By migrating pool ledgers to the Nostr network (Kinds `35500`–`35505`), pools broadcast block invoices and miner payout slices directly to workers. Miners can independently verify unpaid balances and proportional payouts without trusting the pool operator.
+
+## Motivation
+A verifiable on-chain accounting pipeline enables miners to independently track their own contribution and calculate their expected payout directly — while allowing pool operators to issue cryptographically signed, publicly readable payout records that remove the need for miners to trust any pool's internal ledger.
+
+## Specification
+
+Mining pools MUST follow continuous math aggregation (as defined in [SNIP-00](/specifications/snip-00)) when calculating miner balances. All events MUST be signed with the pool's Nostr private key.
+
+## 1. Pool Invoicing Logic
+
+Before a pool can distribute rewards, it must declare the block it secured.
+
+| Kind | Name | Triggered when |
+|------|------|----------------|
+| `35500` | Unpaid Invoice | A block is found — reward is declared but miners are not yet paid |
+| `35501` | Settled Invoice | The on-chain payout transaction has been confirmed |
+
+**Tag Structure (Kinds 35500 and 35501):**
+
+| Tag | Format | Required | Description |
+| :-- | :----- | :------: | :---------- |
+| `d` | `["d", "<HeightHash>"]` | Yes | Unique identifier. blake2b-256 hash of the block height integer. |
+| `b` | `["b", "<BlockHash>"]` | Yes | 32-byte hex block hash. |
+| `height` | `["height", "<int>"]` | Yes | Block height as a decimal integer. |
+| `amount` | `["amount", "<int>"]` | Yes | Total block reward available in satoshis. |
+| `workers` | `["workers", "<int>"]` | Yes | Number of participating workers. |
+| `shares` | `["shares", "<Label>"]` | Yes | Pool's combined difficulty for this block (Sharenote label). |
+| `x` | `["x", "<Txid>", "<Height>", "<Hash>"]` | No | On-chain settlement confirmation. Required on Settled Inbound (`35501`). |
+
+**Example (Kind 35500 — Unpaid Invoice):**
+```json
+{
+  "kind": 35500,
+  "tags": [
+    ["d", "9d83d89f11bc0b930935e9a58e93ac1e43cdcaf25e8e4d68dc4c96763208f479"],
+    ["b", "000000000000000000024bead8df699900000000000000000000000000000000"],
+    ["height", "843000"],
+    ["amount", "312500000"],
+    ["shares", "44Z00"],
+    ["workers", "128"]
+  ],
+  "content": ""
+}
+```
+
+## 2. Miner Payout Slicing
+
+Once the invoice is established, the pool publishes the individual miner's payout portion.
+
+| Kind | Name | Description |
+|------|------|-------------|
+| `35503` | Pending Share | Unconfirmed WIP shares for a miner. |
+| `35504` | Finalized Share | Shares committed to a specific block height — the payout slice is locked and will not change. |
+| `35505` | Share Payment | Direct financial routing confirmation. |
+
+**State machine progression:**
+
+```
+35503 (Pending)  →  35504 (Finalized)  →  35505 (Paid)
+     ↑                     ↑                   ↑
+  Shares submitted     Block found,          On-chain tx
+  while block          round closes          confirmed
+  window is open
+```
+
+> [!IMPORTANT]
+> When transitioning from **Pending (35503)** to **Finalized (35504)**, the pool MUST publish a **Deletion (Kind 5)** event referencing the original 35503 events to ensure they disappear from the miner's current unpaid tally.
+
+**Tag Structure (Kinds 35503, 35504, 35505):**
+
+| Tag | Format | Required | Description |
+| :-- | :----- | :------: | :---------- |
+| `d` | `["d", "<ShareID>"]` | Yes | Unique share identifier. |
+| `a` | `["a", "<Address>"]` | Yes | Miner's chain receiving address. |
+| `h` | `["h", "<HeightHash>"]` | Yes | blake2b-256 hash of the block height. |
+| `b` | `["b", "<BlockHash>"]` | Yes | 32-byte hex block hash. |
+| `chain` | `["chain", "<ChainID_hex>"]` | No | Hex-encoded chain ID (e.g., `"15"` for chain 21). Defaults to `"15"`. |
+| `workers` | `["workers", "<name>", ...]` | Yes | One or more worker names. |
+| `height` | `["height", "<int>"]` | Yes | Block height. |
+| `amount` | `["amount", "<int>"]` | Yes | Miner's payout amount in satoshis. |
+| `shares` | `["shares", "<Label>", "<count>"]` | Yes | Miner's difficulty label and sharenote count. |
+| `totalshares` | `["totalshares", "<Label>", "<count>"]` | Yes | Pool's aggregate difficulty for proportional calculation. |
+| `timestamp` | `["timestamp", "<unix_ms>"]` | Yes | Creation timestamp in milliseconds. |
+| `fee` | `["fee", "<int>"]` | No | Transaction fee deducted from payout. |
+| `eph` | `["eph", "<int>"]` | No | Estimated payment height. |
+| `sn` | `["sn", "<event_id>", ...]` | No | References to Sharenote minting events (Kind 35510). |
+| `x` | `["x", "<Txid>", ...]` | No | Settlement transaction ID. Required on 35505. |
+
+**Example (Kind 35503 — Pending Share):**
+```json
+{
+  "kind": 35503,
+  "tags": [
+    ["d", "4df56feb0a58e4e0f553dabdc4a5c95e8daa284fad3fa14ac97d82224de84952"],
+    ["a", "bc1qminer..."],
+    ["h", "9d83d89f11bc0b930935e9a58e93ac1e43cdcaf25e8e4d68dc4c96763208f479"],
+    ["b", "000000000000000000024bead8df699900000000000000000000000000000000"],
+    ["workers", "rig-01"],
+    ["height", "843000"],
+    ["amount", "2441406"],
+    ["shares", "34Z10", "1"],
+    ["totalshares", "44Z00", "128"],
+    ["timestamp", "1712345678000"]
+  ],
+  "content": ""
+}
+```
+
+## 3. The Proportional Arithmetic Law
+
+**Watchtowers** verifying payout events MUST implement continuous math ([SNIP-00](/specifications/snip-00)):
+
+$$
+\text{Miner\_Payout} = \frac{\text{Miner\_Shares\_D}}{\text{Total\_Shares\_D}} \times \text{Invoice\_Amount}
+$$
+
+Where `Miner_Shares_D` and `Total_Shares_D` are the Continuous Difficulty values computed from their respective Sharenote labels. Using the raw string labels for division is non-compliant.
+
+> **Note**: Label-based string substitution or textual label truncation to perform payout slicing is explicitly prohibited.
+
+## Rationale
+Using a multi-kind pipeline creates a transparent state-machine over Nostr. External SDKs and dashboards reconstruct pool financial state using entirely public cryptographic proofs.
+
+## Vibe Coding Integration
+Builders do not need to manually construct the multi-kind accounting pipeline. By invoking `npx skills add soprinter/skills --skill sharenote`, your AI assistant natively understands the event state machine outlined in this specification.
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)

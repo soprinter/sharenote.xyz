@@ -1,0 +1,85 @@
+---
+title: "SNIP-02: Hashrate & Telemetry"
+description: "Standardizing live hashrate telemetry broadcasts over Nostr."
+---
+
+## Status
+Stable
+
+## Abstract
+This specification defines the standard event schema for streaming live Sharenote hashrate metrics over Nostr (**Kind 35502**). By establishing a unified telemetry format, SNIP-02 enables seamless interoperability between mining hardware, pool monitors, and global hashrate aggregators.
+
+## Motivation
+A standardized telemetry schema enables miners and pools to broadcast live performance data to any subscriber — dashboards, watchtowers, and pool federation nodes — using entirely public cryptographic proofs.
+
+## Specification
+
+A telemetry broadcast (Nostr **Kind 35502**) uses an **empty `content` field**. All data is transported via tags to minimize payload size during high-frequency broadcasts.
+
+### Core Tags
+
+| Tag | Format | Required | Description |
+|-----|--------|----------|-------------|
+| `a` | `["a", "<address>"]` | ✅ Mandatory | Chain address of the mining operation |
+| `all` | `["all", "<hashrate>", "msn:<label>"]` | One of `all` or `h` | Total EMA-adjusted hashrate across all workers (H/s). Inline `msn:<label>` carries the mean Sharenote. Used in multi-worker farm mode. |
+| `h` | `["h", "<hashrate>", "msn:<label>"]` | One of `all` or `h` | Single-worker hashrate. Inline `msn:<label>` carries the mean Sharenote. Used when there is no aggregate total. |
+
+One of `all` or `h` **MUST** be present.
+
+### Per-Worker Tags
+
+Individual ASICs or machines are appended using `w:`-prefixed tags. Each worker tag carries a series of `key:value` sub-fields:
+
+```
+["w:<worker_name>", "h:<hashrate>", "sn:<label>", "msn:<mean_label>", "csn:<count>", "crsn:<rejected>", "mt:<seconds>", "lsn:<unix>", "ua:<agent>"]
+```
+
+| Sub-field | Description |
+|-----------|-------------|
+| `h:<hashrate>` | (Required) Worker's EMA-adjusted hashrate in H/s |
+| `sn:<label>` | Minimum difficulty label assigned to the worker |
+| `msn:<mean_label>` | Mean Sharenote difficulty achieved by this worker |
+| `csn:<count>` | Total count of accepted sharenotes |
+| `crsn:<rejected>` | Count of rejected sharenotes. Omitted when zero. |
+| `mt:<seconds>` | Mean time in seconds between accepted shares |
+| `lsn:<unix>` | Unix timestamp of the last submitted valid share |
+| `ua:<agent>` | User-agent string identifying the mining software |
+
+Workers are sorted alphabetically by name.
+
+### Validation Constraints
+
+Relays storing Kind 35502 events MUST enforce:
+1. Presence of exactly one `a` tag.
+2. Presence of an `all` or `h` tag containing a valid hashrate value.
+3. Valid Nostr signature (to prevent hashrate spoofing).
+
+### Example Event
+
+```json
+{
+  "kind": 35502,
+  "pubkey": "b7e1c3a0d4e9f2a1b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6",
+  "created_at": 1712345678,
+  "content": "",
+  "tags": [
+    ["a", "bc1qxyz..."],
+    ["all", "102400000000000", "msn:34z10"],
+    ["w:rig-01", "h:51200000000000", "sn:34z10", "msn:34z05", "csn:412", "mt:3.8", "lsn:1712345600", "ua:bmminer/2.0"],
+    ["w:rig-02", "h:51200000000000", "sn:34z00", "msn:33z90", "csn:388", "mt:4.1", "lsn:1712345610", "ua:bmminer/2.0"]
+  ],
+  "sig": "..."
+}
+```
+
+### Privacy Recommendations
+
+All worker fields (`sn:`, `h:`, `msn:`, `ua:`) are publicly readable by any subscriber. Operators who wish to limit hardware topology disclosure — for example, to avoid revealing ASIC model mix — SHOULD rotate the `<worker_name>` identifier rather than using static MAC addresses or persistent device identifiers.
+
+## Rationale
+A common telemetry format over Nostr enables any dashboard or aggregator to display live hashrate without coordination with the miner or pool. The strict tag schema guarantees all parsing SDKs deserialize parameters without precision loss.
+
+## Vibe Coding Integration
+Builders do not need to manually parse or construct Kind 35502 arrays. By invoking `npx skills add soprinter/skills --skill sharenote`, your AI assistant natively understands the precise tagging architecture outlined in this specification.
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)

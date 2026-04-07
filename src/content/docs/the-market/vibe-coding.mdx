@@ -1,0 +1,30 @@
+---
+title: "Vibe Coding Integration"
+description: "Build with Sharenote using AI-assisted Vibe Coding — no cryptographic math required."
+---
+
+Build Sharenote-powered apps without writing a single line of cryptographic math.
+
+The protocol's difficulty calculations, binary formatting, and verification rules are complex by design. You should not implement them by hand. Instead, teach your AI coding assistant the entire Sharenote protocol in one command — and let it write the integration for you.
+
+## The Sharenote Skill
+
+By explicitly attaching the Sharenote Protocol skill to your AI assistant's context workspace, the assistant natively understands the math, the tagging rules, and the verification schemas outlined in the SNIP specifications.
+
+To install this capability, drop into your terminal and run:
+
+```bash
+npx skills add soprinter/skills --skill sharenote
+```
+
+This injects the official `.agents/skills/sharenote/SKILL.md` directly into your active repository.
+
+## How It Works
+
+Once the skill is installed, simply prompt your coding assistant. The AI will natively generate the precise formatting and continuous difficulty logic required for your specific framework (TypeScript, Go, Rust, etc.) without downloading black-box packages.
+
+**Example Prompts:**
+- *"Write an Express middleware that intercepts requests, checks for a `20Z00` Sharenote in the authorization header, and verifies the Continuous Difficulty math using the sharenote skill."*
+- *"Build a Go service that acts as a Stratum proxy, consuming mining hashes and packaging them into Kind 35510 AuxPoW events exactly as defined by the sharenote skill."*
+
+The resulting code is fully transparent, exactly tailored to your service, and mathematically compliant with the protocol.

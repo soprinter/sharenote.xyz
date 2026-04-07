@@ -1,0 +1,57 @@
+---
+title: "FAQs"
+description: "Direct answers to the most common questions about Sharenote — from miners, builders, and curious newcomers."
+---
+
+## Do I need new hardware?
+
+**No.** Sharenote integrates directly into your existing Stratum setup. Your current mining client and pool connection stay unchanged. The Stratum-side component works within your existing operation.
+
+## Is a Sharenote a coin?
+
+**No.** A Sharenote is a proof-of-work note — a denomination of computational work, not a transferable currency. Think of it like a signed receipt that proves real energy was spent. It is not a coin, not a token, and not an NFT.
+
+## Can AI bots print Sharenotes?
+
+**Yes — but not for free.** A bot can run the computation. But at scale, the energy cost becomes real. Requiring a `20Z00` note per request means a bot sending a million requests must genuinely spend the computational equivalent of a million legitimate users. The math makes mass abuse economically unviable.
+
+## Does this replace my pool?
+
+**No.** Sharenote works inside your existing pool relationship. Your pool receives your shares via Stratum exactly as before. Sharenote adds a layer on top — publishing signed records of that work to the open relay network so your contributions are independently verifiable.
+
+## Is my work auditable?
+
+**Yes — by anyone.** Every note printed is published to the Nostr relay network, signed with your identity. Any miner, auditor, application, or third party can read those records at any time without asking a pool for permission.
+
+## What denomination should I use for consensus weight?
+
+It depends on the balance between the weight of the action and the scope of the required computation:
+
+| Denomination | Generation Scope | Use case |
+|---|---|---|
+| `10Z00` | Background AuxPoW processing | Light feed sorting |
+| `20Z00` | Basic market routing | Standard data curation and upvoting |
+| `25Z00` | High-capacity market routing | LLM fine-tuning data validation |
+
+Because true proof-of-work physically requires time and energy, high-target scopes like `25Z00` necessitate outsourcing to dedicated Hashrate Providers rather than generating locally.
+
+## What is Nostr?
+
+Nostr is an open protocol for distributing cryptographically signed messages across a network of independent servers called relays. Anyone can run a relay. No relay can alter a message — the signature would break if they tried. Sharenote uses Nostr as the public layer where all printed notes are recorded.
+
+→ [Full Nostr definition in the Glossary](/learn/glossary#nostr)
+
+## How do I test in development?
+
+Use a low denomination like `10Z00` during development — it requires minimal computation and exercises the full proof-of-work → verification flow. Your test suite can generate and verify notes to simulate the market behavior.
+
+For relay testing, you can run a local Nostr relay (e.g. [strfry](https://github.com/hoytech/strfry) or [nostream](https://github.com/Cameri/nostream)) to publish and read events without hitting public relays.
+
+## Where do I start?
+
+Choose your path:
+
+- **Hashrate Provider** → [Hashrate Monetization](/the-market/hashrate-monetization)
+- **Agent Builder** → [Agent Integration](/the-market/agent-integration)
+- **Source of Work** → [Hashrate Monetization](/the-market/hashrate-monetization)
+- **Just curious** → [What is a Sharenote?](/learn/what-is-sharenote)

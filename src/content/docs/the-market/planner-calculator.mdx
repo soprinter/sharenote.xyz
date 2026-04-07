@@ -1,0 +1,36 @@
+---
+title: "Sharenote Planner"
+description: "Calculate Z-Bits and map your hardware's hashing capacity to Sharenote difficulty."
+---
+
+The **Sharenote Planner** tells you what denomination of note your hardware can reliably print.
+
+Enter your hashrate — the speed your hardware runs at — and the Planner calculates the exact Sharenote denomination your setup produces. No manual math required.
+
+**[Open the live Planner →](https://sharenote.xyz/planner)**
+
+```
+Example:
+Input:  100 TH/s, 24-hour window
+Output: 61Z70  (printed reliably 90% of the time)
+        60Z11  (printed reliably 99.9% of the time)
+```
+
+## Reliability Presets
+
+The Planner outputs labels at two confidence intervals using the Poisson probability distribution:
+
+| Preset | Meaning |
+|--------|---------|
+| `usually_90` | The Sharenote label your setup will produce *at least* 90% of the time within the target window. A pragmatic working estimate. |
+| `almost_999` | The label your setup will produce 99.9% of the time. Conservative — useful for setting guaranteed minimums in contracts or consensus thresholds. |
+
+The difference between presets represents the statistical variance of proof-of-work. Higher difficulty targets have more variance.
+
+## How Hashrate Maps to Z-Bits
+
+Sharenote uses a log-2 scale for difficulty. The exact mathematical density of a Physical Share (its Continuous Difficulty) is converted into a human-readable label via the planning functions.
+
+Your AI coding assistant handles all log-linear conversions and Poisson probability multipliers when you use the Sharenote skill.
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
