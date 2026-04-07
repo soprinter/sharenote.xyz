@@ -25,8 +25,8 @@ A miner runs an Antminer S19 connected to a standard Bitcoin pool. In standard m
 
 With Sharenote:
 
-1. The Stratum-side component receives the pool's work template natively (unchanged).
-2. The component simultaneously layers in additional consensus requests—such as weighting social feeds or validating data from the open market—alongside any secondary AuxPoW pool agreements.
+1. The Sharenote-native Stratum receives the pool's work template natively (unchanged).
+2. The protocol integration simultaneously layers in additional consensus requests—such as weighting social feeds or validating data from the open market—alongside any secondary AuxPoW pool agreements.
 3. When the S19 solves a hash, the client checks every configured target. If the hash meets Bitcoin's difficulty: submitted to the primary pool. If it simultaneously meets a Market feed consensus target: also submitted there. Both happen from one solved hash.
 4. The full record of what work was distributed and what was solved is signed with the miner's Nostr key and published to the relay network — not sitting in any pool's private log.
 

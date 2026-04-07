@@ -33,9 +33,15 @@ In standard mining software, this is called a "submitted share" or "accepted sha
 
 ## Work Template
 
-The specific hash puzzle distributed by a mining pool to connected hardware. A work template defines exactly what computation the miner's ASIC or GPU will attempt — including the block header, coinbase transaction, and difficulty target.
+The specific hash puzzle provided to mining hardware for solving (e.g., a Bitcoin block header template). A Work Template defines exactly what computation the ASIC or GPU will attempt — including the block data and target rules. In Sharenote, the template is the first requirement for printing a note.
 
-Sharenote enables pools to publish work template commitments as signed Nostr events, making work assignments publicly readable and auditable by any party.
+## Sharenote Bill (Target Bill)
+
+The specific difficulty floor chosen by a miner or user for a printing job (e.g., `20Z00`). The Bill serves as a target threshold; the hardware must spend enough energy to find a hash that satisfies this target. A Sharenote Bill is the second requirement for printing.
+
+## Energy (Computation)
+
+The physical work performed by mining hardware to reach a Target Bill using a Work Template. Energy is the third and final requirement for printing a Sharenote. The resulting note is a mathematical proof that this specific amount of energy was spent on a specific template.
 
 ## Nostr
 
@@ -59,15 +65,11 @@ Generate a keypair at [nstart.me](https://nstart.me).
 
 ## Stratum
 
-The standard communication protocol between mining hardware (ASICs, GPUs) and mining pools. It delivers work templates to miners and receives submitted shares. Sharenote integrates *directly into* Stratum components — both on the miner-side to publish events and the pool-side to validate.
+The standard communication protocol between mining hardware (ASICs, GPUs) and mining pools. It delivers Work Templates and receives submitted shares. Sharenote integrates into Stratum via protocol-aware implementations that handle the signing and publishing of work events.
 
-## Stratum-Side Component
+## protocol-aware Stratum (Initiative)
 
-A Stratum-side component natively integrates into a standard mining client or server. It handles solved Physical Shares, signing them with the miner's Nostr private key natively, and publishes the resulting Kind 35502 **telemetry events** and Kind 35510 **printing events** to the miner's chosen relays.
-
-The Stratum-side component also natively manages simultaneous AuxPoW work — combining templates from multiple pools or chains and presenting the hardware with a single optimal puzzle to solve.
-
-The component is **baked directly** into the Stratum operation, serving as the interface between traditional mining flows and the decentralized relay network.
+The ongoing effort to integrate Sharenote's cryptographic signing and Nostr publishing logic directly into standard Stratum server implementations. This removes the need for external tools and allows miners to use the protocol natively within their existing environments.
 
 ## Pool Alliance
 

@@ -5,7 +5,7 @@ description: "Direct answers to the most common questions about Sharenote — fr
 
 ## Do I need new hardware?
 
-**No.** Sharenote integrates directly into your existing Stratum setup. Your current mining client and pool connection stay unchanged. The Stratum-side component works within your existing operation.
+**No.** Sharenote works with your existing ASIC or GPU hardware. However, it requires a protocol-aware Stratum server to manage the Work Templates and sign the resulting notes. There is an active initiative to integrate Sharenote support directly into standard Stratum implementations.
 
 ## Is a Sharenote a coin?
 
@@ -17,7 +17,7 @@ description: "Direct answers to the most common questions about Sharenote — fr
 
 ## Does this replace my pool?
 
-**No.** Sharenote works inside your existing pool relationship. Your pool receives your shares via Stratum exactly as before. Sharenote adds a layer on top — publishing signed records of that work to the open relay network so your contributions are independently verifiable.
+**No.** Sharenote is an integrated protocol layer. While your hardware continues to solve puzzles exactly as before, the Stratum server you connect to must be Sharenote-aware to capture and publish the signed records of your work to the open relay network.
 
 ## Is my work auditable?
 
@@ -33,7 +33,7 @@ It depends on the balance between the weight of the action and the scope of the 
 | `20Z00` | Basic market routing | Standard data curation and upvoting |
 | `25Z00` | High-capacity market routing | LLM fine-tuning data validation |
 
-Because true proof-of-work physically requires time and energy, high-target scopes like `25Z00` necessitate outsourcing to dedicated Hashrate Providers rather than generating locally.
+Because true proof-of-work physically requires time and energy, high-target scopes like `25Z00` necessitate outsourcing to dedicated Hashrate Providers. You can calculate your exact hardware capacity using the [Planner & Calculator](/the-market/planner-calculator).
 
 ## What is Nostr?
 
@@ -53,5 +53,5 @@ Choose your path:
 
 - **Hashrate Provider** → [Hashrate Monetization](/the-market/hashrate-monetization)
 - **Agent Builder** → [Agent Integration](/the-market/agent-integration)
-- **Source of Work** → [Hashrate Monetization](/the-market/hashrate-monetization)
+- **Work Template** → [Hashrate Monetization](/the-market/hashrate-monetization)
 - **Just curious** → [What is a Sharenote?](/learn/what-is-sharenote)

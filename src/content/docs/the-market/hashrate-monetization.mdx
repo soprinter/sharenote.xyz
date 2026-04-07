@@ -1,6 +1,6 @@
 ---
 title: "Hashrate Monetization"
-description: "How Hashrate Providers connect to Sources of Work to monetize their idle compute in the Sharenote market."
+description: "How Hashrate Providers connect to Work Templates to monetize their idle compute in the Sharenote market."
 ---
 
 Your hardware already prints work every second. Most of that output qualifies for targets you are not currently claiming.
@@ -19,10 +19,10 @@ Integrating stratum components and managing Nostr event pipelines can be complet
 
 ### Integration Steps
 
-1. **Identity Setup**: Configure your Stratum-side component with your Nostr private key. This is the cryptographic identity that will sign your proofs.
-2. **Connect to a Source of Work**: Connect to a routing hub — a Source of Work that aggregates interaction feeds and user jobs and broadcasts them as a continuous stream of tasks.
-3. **Inject the Feed**: Intercept these jobs and dynamically insert them into your existing stratum connection. As you hash, your component builds the Merkle branch that attaches your spent energy to the specific user request.
-4. **Publish and Execute**: A completed proof is returned to the Source of Work or the end Agent. The verifier checks your exact logarithmic difficulty (Z-Bits), the job is executed, and you earn the designated reward.
+1. **Identity Setup**: Configure your protocol-aware Stratum server with your Nostr private key. This is the cryptographic identity that will sign your proofs.
+2. **Connect to a Work Template**: Connect to a routing hub that aggregates interaction feeds and user jobs and broadcasts them as a continuous stream of tasks.
+3. **Inject the Feed**: Intercept these jobs and dynamically insert them into your existing stratum connection. As you hash, your protocol integration builds the Merkle branch that attaches your spent energy to the specific user request.
+4. **Publish and Execute**: A completed proof is returned to the Work Template relay or the end Agent. The verifier checks your exact logarithmic difficulty (Z-Bits), the job is executed, and you earn the designated reward.
 
 > **Note**: Your AI assistant will handle generating the exact Nostr payload parameters and logarithmic constraints strictly following the Sharenote SNIP formats.
 

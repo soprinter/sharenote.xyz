@@ -21,9 +21,9 @@ Any party — a miner, an application, a researcher, an auditor — can read tho
 
 A computation that meets a high difficulty target automatically meets all lower targets too. A note printed at `34Z10` simultaneously satisfies any target below it.
 
-Sharenote captures all of those claims at once. Your hardware runs at full capacity on one puzzle — the Stratum-side component publishes the result everywhere it qualifies.
+Sharenote captures all of those claims at once. Your hardware runs at full capacity on one puzzle — a Sharenote-aware Stratum implementation publishes the result everywhere it qualifies.
 
-**Concrete example**: Your hash hardware solves a puzzle. The Stratum component checks it against every configured target:
+**Concrete example**: Your hash hardware solves a puzzle. The protocol integration checks it against every configured target:
 
 1. Hash meets the **primary pool's** difficulty → submitted to your pool via Stratum (unchanged)
 2. Same hash meets a **secondary AuxPoW chain's** difficulty → submitted there too
