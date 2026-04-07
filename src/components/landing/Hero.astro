@@ -68,13 +68,15 @@ const skillCmd = 'npx skills add soprinter/skills --skill sharenote';
 <style>
   /* ── Section shell ── */
   .hero-section {
-    height: calc(100svh - var(--header-h, 0px));
+    min-height: calc(100svh - var(--header-h, 0px));
+    height: auto;
     box-sizing: border-box;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     display: flex;
     align-items: center;
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 76px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+    padding-top: 40px;
     overscroll-behavior-y: contain;
     touch-action: pan-y;
   }
@@ -411,9 +413,11 @@ const skillCmd = 'npx skills add soprinter/skills --skill sharenote';
         span.style.fontSize = baseline + 'px';
         span.style.lineHeight = '1.1';
         const w = span.getBoundingClientRect().width || 1;
-        const scale = targetWidth / w;
+        // Use 92% of target width as safety margin to prevent edge touching
+        const scale = (targetWidth * 0.92) / w;
         const min = 16;
-        const max = 120;
+        // Reduce max font size for mobile
+        const max = window.innerWidth < 768 ? 68 : 120;
         const size = Math.max(min, Math.min(max, baseline * scale));
         el.style.fontSize = size + 'px';
         span.style.fontSize = prev;
