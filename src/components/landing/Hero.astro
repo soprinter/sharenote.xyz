@@ -111,21 +111,21 @@ const skillCmd = 'npx skills add soprinter/skills --skill sharenote';
     justify-content: center;
   }
   .hero-img {
-    width: clamp(200px, 36vw, 420px);
+    width: clamp(200px, 32vw, 420px);
     height: auto;
     display: block;
   }
 
-  /* Mobile: stack vertically, image on top */
-  @media (max-width: 767px) {
+  /* Tablet/Mobile: stack vertically, image on top */
+  @media (max-width: 1023px) {
     .hero-inner {
       flex-direction: column-reverse;
       align-items: center;
       text-align: center;
     }
-    .hero-left { align-items: center; }
+    .hero-left { align-items: center; width: 100%; max-width: 600px; margin: 0 auto; }
     .hero-right { width: 100%; justify-content: center; }
-    .hero-img { width: clamp(160px, 55vw, 280px); }
+    .hero-img { width: clamp(160px, 45vw, 360px); margin-bottom: 24px; }
   }
 
   /* ── Headings ── */
@@ -180,6 +180,8 @@ const skillCmd = 'npx skills add soprinter/skills --skill sharenote';
     width: auto;
     height: var(--slot-h, 1em);
     overflow: hidden;
+    /* Strict line-height for vertical alignment */
+    line-height: 1;
     /* Slight baseline lift to match adjacent text visually */
     vertical-align: var(--slot-baseline-adjust, -0.06em);
   }
@@ -416,8 +418,8 @@ const skillCmd = 'npx skills add soprinter/skills --skill sharenote';
         // Use 92% of target width as safety margin to prevent edge touching
         const scale = (targetWidth * 0.92) / w;
         const min = 16;
-        // Reduce max font size for mobile
-        const max = window.innerWidth < 768 ? 68 : 120;
+        // Refined capping: moderate for tablet/mobile, capped for ultra-wide
+        const max = window.innerWidth <= 1024 ? 72 : 110;
         const size = Math.max(min, Math.min(max, baseline * scale));
         el.style.fontSize = size + 'px';
         span.style.fontSize = prev;
