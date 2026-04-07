@@ -8,6 +8,7 @@ import { capitalizeFirstLetter } from "@/lib/utils";
 
 import { docconfig } from "@/config";
 import BacktoTop from "@/components/core/BacktoTop.astro";
+import PrevNext from "@/components/docs/PrevNext.astro";
 
 const {
   title,
@@ -40,5 +41,6 @@ const {
   <div class="prose pt-6">
     <slot />
   </div>
+  <PrevNext />
   <BacktoTop />
 </div>

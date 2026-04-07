@@ -2,42 +2,33 @@
 import SideNavMenu from "@/components/docs/SideNavMenu.astro";
 
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { MenuIcon, X } from "lucide-react";
 
 import { menu } from "@/lib/content";
 
-import { menu_items, docconfig } from "@/config";
-
-const pathname: string = new URL(Astro.request.url).pathname;
-const pathname_part: string = pathname.split("/")[1];
+import { docconfig } from "@/config";
 ---
 
-<style>
+<style is:global>
   .menu-overlay {
     opacity: 0;
     pointer-events: none;
+    visibility: hidden;
     transform: translateY(-8px);
-    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0s 0.3s;
   }
 
   .menu-overlay.active {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
     transform: translateY(0);
-  }
-
-  .stagger-item {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .menu-overlay.active .stagger-item {
-    opacity: 1;
-    transform: translateY(0);
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0s 0s;
   }
 </style>
 
@@ -55,17 +46,13 @@ const pathname_part: string = pathname.split("/")[1];
       <X className="h-[1.2rem] w-[1.2rem]" />
     </Button>
   </div>
-  <ScrollArea className=" w-full h-dynamic_hscreen mb-4" client:only="react">
-    <div class="flex flex-col items-start px-6">
-      {
-        !docconfig.hide_side_navigations && (
-          <div class="w-full stagger-item" style="transition-delay: 60ms">
-            <SideNavMenu items={menu} level={0} class="px-4" />
-          </div>
-        )
-      }
-    </div>
-  </ScrollArea>
+  <div class="flex-1 min-h-0 overflow-y-auto mb-4 px-6">
+    {
+      !docconfig.hide_side_navigations && (
+        <SideNavMenu items={menu} level={0} class="w-full" />
+      )
+    }
+  </div>
 </div>
 
 <script is:inline>
