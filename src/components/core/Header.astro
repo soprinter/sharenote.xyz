@@ -5,7 +5,6 @@ import NavMenu from "@/components/core/NavMenu.astro";
 import { Button } from "@/components/ui/button";
 
 import { docconfig, SITE } from "@/config";
-import { menu as docsMenu } from "@/lib/content";
 import { buildSearchIndex } from "@/lib/search-index";
 
 const searchIndex = await buildSearchIndex();
@@ -163,7 +162,7 @@ const { class: className } = Astro.props;
   })();
 </script>
 
-<script define:vars={{ searchIndex }}>
+<script is:inline define:vars={{ searchIndex }}>
   (function () {
     // Fuse.js inline (lightweight fuzzy search)
     let fuseInstance = null;

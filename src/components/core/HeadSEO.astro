@@ -42,6 +42,9 @@ const websiteJSONLD = {
   name: siteName,
   url: SITE.website,
 };
+
+// Satisfy linter that these are read for the script templates below
+const _ld = { organizationJSONLD, websiteJSONLD };
 ---
 
 <meta charset="utf-8" />
@@ -94,7 +97,7 @@ const websiteJSONLD = {
 
 {enableAnalytics && (
   <>
-    <script async src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}></script>
+    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}></script>
     <script is:inline>
       {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
