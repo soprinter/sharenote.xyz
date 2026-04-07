@@ -358,15 +358,6 @@ const skillCmd = 'npx skills add soprinter/skills';
         navigator.clipboard.writeText(text).then(function () {
           copyBtn.classList.add('copied');
           setTimeout(function () { copyBtn.classList.remove('copied'); }, 1400);
-        }).catch(function () {
-          var ta = document.createElement('textarea');
-          ta.value = text;
-          ta.style.position = 'fixed';
-          ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.select();
-          try { document.execCommand('copy'); } catch (_) {}
-          document.body.removeChild(ta);
         });
       });
     }
@@ -476,7 +467,6 @@ const skillCmd = 'npx skills add soprinter/skills';
 
           const oldRect = oldWord.getBoundingClientRect();
           const newRect = newWord.getBoundingClientRect();
-          const maxW = Math.ceil(Math.max(oldRect.width, newRect.width));
           const maxH = Math.ceil(Math.max(oldRect.height, newRect.height));
 
           slotWindow.style.setProperty('--slot-h', maxH + 'px');

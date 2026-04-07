@@ -27,7 +27,7 @@ export function buildBreadcrumbs(
   const breadcrumbs: { title: string; link: string }[] = [];
   let currentPath = "";
 
-  parts.forEach((part, index) => {
+  parts.forEach((part) => {
     if (part) {
       currentPath += `/${part}`;
       breadcrumbs.push({
