@@ -9,7 +9,6 @@ Draft
 ## Abstract
 This specification defines identity events for participants in the Sharenote mining ecosystem. Two distinct event kinds allow miners and pool operators to publish their profiles, chain addresses, and operational parameters over Nostr.
 
-Both kinds fall within the NIP-01 Replaceable range (**10000–19999**). For each combination of pubkey and kind, relays store only the latest event. Publishing a new event replaces the previous one automatically — no `d` tag is needed.
 
 ## 1. Miner Identity (Kind 10520)
 
@@ -91,6 +90,6 @@ A pool operator publishes a single replaceable event declaring their pool profil
 Using replaceable events (10000–19999) ensures that users only ever need to discover the latest identity for a given pubkey. Moving the accounting and identity logic to Nostr eliminates the need for miners to trust centralized pool dashboards.
 
 ## Vibe Coding Integration
-Builders do not need to manually parse or construct identity arrays. By invoking `npx skills add soprinter/skills --skill sharenote`, your AI assistant natively understands the identity schemas outlined in this specification.
+Builders do not need to manually parse or construct identity arrays. By invoking `npx skills add soprinter/skills`, your AI assistant natively understands the identity schemas outlined in this specification.
 
 → [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
