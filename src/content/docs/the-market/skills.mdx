@@ -28,15 +28,18 @@ The Sharenote Skill provides:
 2. **Schema Enforcement**: Ensures every Nostr event you produce is valid and interoperable.
 3. **Idiomatic SDK Usage**: Guides your agent to use our optimized libraries instead of rewriting complex logic.
 
+## Vibe Coding with Sharenote
+
+"Vibe Coding" refers to building robust apps by describing your intent to an AI agent rather than manually writing every line of cryptographic code. Once the skill is installed, you can use prompts like:
+
+- *"Write an Express middleware that intercepts requests, checks for a `20Z00` Sharenote in the authorization header, and verifies the Continuous Difficulty math using the sharenote skill."*
+- *"Build a Go service that acts as a Stratum proxy, consuming mining hashes and packaging them into Kind 35510 AuxPoW events exactly as defined by the sharenote skill."*
+
+The resulting code is fully transparent, exactly tailored to your service, and mathematically compliant with the protocol.
+
 ## LLM-Friendly Documentation
 
 We provide compressed, LLM-optimized versions of our documentation for use in "Context Windows" or as reference material for AI crawlers:
 
 - **[llms.txt](/llms.txt)**: A high-level summary of the protocol and its core concepts.
 - **[llms-full.txt](/llms-full.txt)**: A full, concatenated version of all documentation and specifications.
-
-## Building with AI
-
-When building with Sharenote, we recommend a "Vibe Coding" approach where you describe your intent and let your skill-equipped agent handle the implementation details.
-
-→ [Learn more about Vibe Coding Integration](/the-market/vibe-coding)

@@ -55,7 +55,6 @@ export const side_nav_menu_order: string[] = [
   "the-market/hashrate-monetization",
   "the-market/planner-calculator",
   "the-market/skills",
-  "the-market/vibe-coding",
   "the-market/faqs",
   "specifications",
   "specifications/snip-00",
