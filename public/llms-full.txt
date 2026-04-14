@@ -1,0 +1,1288 @@
+# Sharenote Full Documentation
+
+Generated on: 2026-04-14T17:41:16.381Z
+
+---
+
+## File: learn/glossary.mdx
+
+---
+title: "Glossary"
+description: "Definitions for all core Sharenote protocol terms — ordered from the most accessible to the most technical."
+---
+
+This page defines every term used throughout the Sharenote documentation. Entries are ordered from the most accessible concepts to the most technical. If you encounter an unfamiliar word, start here.
+
+## Proof-of-Work (PoW)
+
+A technique where a computer performs a large amount of computation to produce a specific result. The result is trivially easy to *verify* but computationally expensive to *produce*. This asymmetry makes it useful for establishing digital consensus weight and a way to prove that real energy was expended.
+
+*Think of it like a padlock puzzle — solving it takes real effort, but anyone can mathematically verify if your solution is correct.*
+
+## Sharenote
+
+A discrete, human-readable denomination of proof-of-work, expressed as a label such as `34Z10`. The format is `XZYY` where `X` is the integer Z-bit floor and `YY` is the truncated centi-bits.
+
+A Sharenote label acts as a **routing parameter and minimum difficulty floor**. Think of it like the face value printed on a banknote — it communicates the minimum energy required to produce it. It is **not** used for arithmetic — only the underlying Continuous Difficulty value is used for calculations.
+
+## Z-Bit
+
+The base unit of difficulty measurement in the Sharenote protocol. Z-Bits represent difficulty on a **logarithmic (log-2) scale**, similar to how decibels measure sound intensity.
+
+- `1 Z-Bit` = a hash 2× harder than baseline
+- `10 Z-Bits` = a hash 1,024× harder than baseline
+- `34 Z-Bits` = 2^34 ≈ 17 billion hash executions
+
+## Physical Share
+
+A raw, solved hash computation produced by mining hardware. When a miner's ASIC or GPU finds a hash that meets the required difficulty target, that result is a Physical Share.
+
+In standard mining software, this is called a "submitted share" or "accepted share." Sharenote uses *Physical Share* to distinguish the raw cryptographic hash payload from the human-readable label derived from it.
+
+## Work Template
+
+The specific hash puzzle provided to mining hardware for solving (e.g., a Bitcoin block header template). A Work Template defines exactly what computation the ASIC or GPU will attempt — including the block data and target rules. In Sharenote, the template is the first requirement for printing a note.
+
+## Sharenote Bill (Target Bill)
+
+The specific difficulty floor chosen by a miner or user for a printing job (e.g., `20Z00`). The Bill serves as a target threshold; the hardware must spend enough energy to find a hash that satisfies this target. A Sharenote Bill is the second requirement for printing.
+
+## Energy (Computation)
+
+The physical work performed by mining hardware to reach a Target Bill using a Work Template. Energy is the third and final requirement for printing a Sharenote. The resulting note is a mathematical proof that this specific amount of energy was spent on a specific template.
+
+## Nostr
+
+A simple, open protocol for publishing and distributing cryptographically signed messages (called *events*) across a network of servers (called *relays*). Anyone can run a relay or publish events. Events are signed with a private key — no central server controls your identity.
+
+Sharenote uses Nostr as its broadcast layer. Work state and pool accounting records are published as Nostr events that any party can independently read and verify.
+
+[What is Nostr? →](https://nostr.com)
+
+## Relay
+
+A Nostr server that stores and distributes signed events. Relays cannot alter event content — the cryptographic signature would break if they did. Miners choose which relays to publish to and can run their own for full data sovereignty.
+
+## Nostr Keypair
+
+A pair of cryptographic keys used to sign and identify Nostr events:
+- **Private key**: A secret 32-byte value that signs your events. Never share this.
+- **Public key**: A derived counterpart that serves as your permanent identity on the network.
+
+Generate a keypair at [nstart.me](https://nstart.me).
+
+## Stratum
+
+The standard communication protocol between mining hardware (ASICs, GPUs) and mining pools. It delivers Work Templates and receives submitted shares. Sharenote integrates into Stratum via protocol-aware implementations that handle the signing and publishing of work events.
+
+## protocol-aware Stratum (Initiative)
+
+The ongoing effort to integrate Sharenote's cryptographic signing and Nostr publishing logic directly into standard Stratum server implementations. This removes the need for external tools and allows miners to use the protocol natively within their existing environments.
+
+## Pool Alliance
+
+A formal, verifiable cooperation agreement between two or more mining pools. In Sharenote, pool alliances are established when pools co-sign the same work template commitments on the Nostr relay network — enabling miners to explicitly participate in coordinated mining across multiple pool relationships with full public audit trails.
+
+> **Status**: Pool alliances are a core design goal of the Sharenote protocol. The formal SNIP specification for pool alliance coordination is in active development.
+
+## Watchtower
+
+Any application, dashboard, or service that connects to the Nostr relay network and reads Sharenote events. Watchtowers reconstruct the full history of distributed work, miner output, and pool settlements from public cryptographic proofs — without needing to ask any pool or miner for data directly.
+
+Watchtowers are passive consumers of the open relay state. They do not require any special permission or trust relationship. See [How It Works](/learn/how-it-works) for the full pipeline.
+
+## SNIP
+
+**Sharenote Improvement Proposal**. A formal specification document defining a specific aspect of the Sharenote protocol. Similar to Bitcoin's BIPs or Nostr's NIPs.
+
+## Nostr Event Kind
+
+A numeric identifier that categorizes a Nostr event. Sharenote defines specific Kind numbers for each type of mining event:
+
+| Kind | SNIP | Purpose |
+|------|------|---------|
+| `10520` | SNIP-05 | Miner Identity (replaceable) |
+| `10521` | SNIP-05 | Pool Identity (replaceable) |
+| `35502` | SNIP-02 | Hashrate & Telemetry |
+| `35500` | SNIP-03 | Unpaid Block Invoice (pool) |
+| `35501` | SNIP-03 | Settled Block Invoice (pool) |
+| `35503` | SNIP-03 | Pending Miner Share |
+| `35504` | SNIP-03 | Finalized Miner Share |
+| `35505` | SNIP-03 | Share Payment |
+| `35510` | SNIP-04 | Raw Printing / AuxPoW |
+
+## Usually_90
+
+A pragmatic Sharenote probability preset representing the difficulty label a setup will produce **at least 90% of the time** within a target window. This is the recommended baseline for general hashrate estimation.
+
+## Almost_999
+
+A conservative Sharenote probability preset representing the difficulty label a setup will produce **99.9% of the time** within a given window. Useful for setting guaranteed network access minimums.
+
+## Continuous Difficulty (`D`)
+
+The exact mathematical density of a Physical Share, expressed as a precise floating-point value in linear space: `D = 2^256 / T` where `T` is the 256-bit target threshold.
+
+Because Z-Bits are logarithmic, you cannot add them directly. All aggregation must first convert Z-Bits to Continuous Difficulty, sum in linear space, then convert back. See [The Strict Aggregation Law](/learn/the-z-bit-standard) and the formal definition in [SNIP-00](/specifications/snip-00).
+
+## Exponential Moving Average (EMA)
+
+A type of moving average that places greater weight on the most recent data points. In Sharenote work broadcasting, EMA is used to smooth the inherent variance of proof-of-work, providing a stable "current hashrate" reading that responds quickly to hardware status changes.
+
+## AuxPoW (Merged Mining)
+
+A technique where a miner's work on one blockchain simultaneously counts as valid proof-of-work on another blockchain. SNIP-04 defines how Sharenote handles AuxPoW submissions via Kind 35510.
+
+In the Sharenote market, AuxPoW is the mechanism by which Hashrate Providers solve user interaction feeds — upvotes, agent requests, data validation jobs — alongside their primary chain work, at zero additional cost.
+
+
+---
+
+## File: learn/how-it-works.mdx
+
+---
+title: "How It Works"
+description: "How Sharenote turns computational work into portable, verifiable denominated notes — and how those notes are recorded on an open network."
+---
+
+import PipelineSchema from "@/components/docs/PipelineSchema.astro";
+
+## Denominations and Energy
+
+Every Sharenote has a denomination — a label like `20Z00` or `34Z10`. That denomination is not assigned by any authority. It is computed directly from the energy your hardware spent to produce the note.
+
+More energy spent = higher denomination. The denomination is a direct mathematical record of work done, stamped into the note at the moment of printing. It cannot be changed after the fact.
+
+## The Open Relay Layer
+
+Sharenote publishes every printed note as a signed record on **Nostr** — an open network of independent servers that anyone can read and no one controls. Your note is signed with your identity before publishing. The signature makes it tamper-proof: any relay that alters the content breaks the signature automatically.
+
+Any party — a miner, an application, a researcher, an auditor — can read those records at any time, at any relay, without asking anyone for permission.
+
+## One Press, Multiple Claims
+
+A computation that meets a high difficulty target automatically meets all lower targets too. A note printed at `34Z10` simultaneously satisfies any target below it.
+
+Sharenote captures all of those claims at once. Your hardware runs at full capacity on one puzzle — a Sharenote-aware Stratum implementation publishes the result everywhere it qualifies.
+
+**Concrete example**: Your hash hardware solves a puzzle. The protocol integration checks it against every configured target:
+
+1. Hash meets the **primary pool's** difficulty → submitted to your pool via Stratum (unchanged)
+2. Same hash meets a **secondary AuxPoW chain's** difficulty → submitted there too
+3. The full work record is signed with your Nostr key and published to the relay network
+
+One computation. Your pool gets the share. The secondary chain gets a valid proof (share or block). The relay gets the public record. No hashrate was split.
+
+## The Full Pipeline
+
+<PipelineSchema />
+
+Independent observers — called **Watchtowers** — connect to the relay network and reconstruct the complete history of printed notes, pool settlements, and miner contributions from public records. Their state is derived directly from the relay — no pool cooperation required.
+
+→ Continue to [The Z-Bit Standard](/learn/the-z-bit-standard) for the math behind denominations.
+
+
+---
+
+## File: learn/introduction.mdx
+
+---
+title: "Welcome to Sharenote"
+description: "Every interaction on the open web can carry verifiable proof that real energy was spent. Sharenote is the protocol that makes this possible."
+---
+
+import Card from "@/components/Card.astro";
+import { BookOpen, Cpu, FileText, Shield, Server } from "lucide-react";
+
+Every interaction on the open web can now carry verifiable proof that a real human chose to spend real energy on it.
+
+**Sharenote** is the protocol that makes this possible. It turns raw computational work into portable, signed, publicly verifiable notes — usable for sorting feeds, weighting content, curating AI training data, and auditing mining payouts.
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+  <Card title="For Miners" icon={BookOpen}>
+    Your hardware already prints work every second. Sharenote publishes that work to an open network where it counts in more places at once — without changing your existing pool setup.
+
+    [What is a Sharenote?](/learn/what-is-sharenote)
+  </Card>
+
+  <Card title="For Builders" icon={Cpu}>
+    Apply consensus weight to real interactions. A proof-of-work note costs real computation to produce — AI spam gets filtered entirely out of your curated feed, leaving only verifiable human curation.
+
+    [Agent Integration Guide](/the-market/agent-integration)
+  </Card>
+
+  <Card title="For Pool Operators" icon={Server}>
+    Publish signed payout records to the open relay network. Every miner independently verifies their proportional share — your accounting becomes publicly auditable by default.
+
+    [Sources of Work Guide](/the-market/hashrate-monetization)
+  </Card>
+
+  <Card title="For Publishers" icon={Shield}>
+    Attach a proof-of-work note to content. In a world of zero-cost AI generation, a Sharenote proves a human chose to spend real energy on this specific piece of work.
+
+    [Use Cases](/learn/use-cases)
+  </Card>
+</div>
+
+## What Sharenote Enables
+
+**Know exactly what you earned.** Pool payouts become signed, public records on the relay network. Any miner can independently recompute their proportional share from the published events alone.
+
+**One hash, every chain it qualifies for.** A single computation that meets a high difficulty target automatically qualifies for every lower target too. One hash, credited across every chain and pool agreement it satisfies — without splitting your hardware.
+
+**Your feed, sorted by energy — not algorithms.** Attach a proof-of-work limit to feed sorting, upvoting content, and curating data for LLM fine-tuning. Bots that mass-produce noise must spend real energy for each insertion. No accounts. No algorithms in the dark.
+
+> **Just curious?** Start with [What is a Sharenote?](/learn/what-is-sharenote) — no mining knowledge required.
+>
+> **Ready to build?** Jump to [The Market](/the-market/spending-bills) or read the [SNIP specifications](/specifications/snip-00).
+
+
+---
+
+## File: learn/learn-by-example.mdx
+
+---
+title: "Learn by Example"
+description: "Understanding Sharenote utility through practical application scenarios."
+---
+
+Three concrete scenarios showing Sharenote in action. Start with the first — it requires no mining knowledge. Each scenario uses the same underlying proof-of-work math, applied to a different context.
+
+## Scenario 1: Consensus Weight for an AI Feed
+
+An application developer is building a feed where human interaction must surface above AI-generated noise. To ensure upvotes reflect real intention, they require verifiable consensus weight to rank a post. They establish a **`20Z00` Sharenote** as the prerequisite for high-visibility distribution.
+
+1. **The Request**: When a user upvotes, the client recognizes the consensus target.
+2. **The Outsource**: The client does not drain the user's battery. It seamlessly offloads the requirement to the open market, where dedicated Hashrate Providers physically solve the `20Z00` challenge via AuxPoW.
+3. **The Verification**: The backend receives the upvote with its attached proof, mathematically verifies its density, and permanently ranks the content based on its energy-backed weight.
+
+Builders can implement this verification flow natively through AI Vibe Coding. → [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
+
+For full integration details, see the [Agent Integration guide](/the-market/agent-integration).
+
+## Scenario 2: Simultaneous Multi-Chain Work
+
+> **Prerequisites**: This scenario assumes familiarity with mining pools, Stratum, and proof-of-work mining. See the [Glossary](/learn/glossary) if any terms are unfamiliar.
+
+A miner runs an Antminer S19 connected to a standard Bitcoin pool. In standard mining, they are locked to that pool's work template — one puzzle, one chain, one relationship.
+
+With Sharenote:
+
+1. The Sharenote-native Stratum receives the pool's work template natively (unchanged).
+2. The protocol integration simultaneously layers in additional consensus requests—such as weighting social feeds or validating data from the open market—alongside any secondary AuxPoW pool agreements.
+3. When the S19 solves a hash, the client checks every configured target. If the hash meets Bitcoin's difficulty: submitted to the primary pool. If it simultaneously meets a Market feed consensus target: also submitted there. Both happen from one solved hash.
+4. The full record of what work was distributed and what was solved is signed with the miner's Nostr key and published to the relay network — not sitting in any pool's private log.
+
+The miner does not split hashrate. The S19 runs at full capacity on one puzzle. The result is claimed simultaneously across every chain and agreement it qualifies for.
+
+→ To configure simultaneous AuxPoW targets on your hardware, follow the [Hashrate Monetization guide](/the-market/hashrate-monetization).
+
+## Scenario 3: Pool Publishing a Public Payout
+
+A mining pool finds a block. In standard mining, the pool privately records the reward and distributes payouts according to its internal ledger. Miners receive a payment and must trust the pool's calculation.
+
+With Sharenote (SNIP-03):
+
+1. The pool signs and publishes a **Kind 35500 Unpaid Invoice** to Nostr relays — declaring the block hash, block height, total reward in satoshis, and the aggregate pool difficulty.
+2. For each miner who contributed shares, the pool signs and publishes a **Kind 35503 Pending Share** event containing the miner's individual difficulty and the pool total.
+3. When the on-chain payout transaction hits the mempool, the pool signs a **Kind 35501 Settled Invoice** appending the transaction ID.
+4. Any miner, pool partner, or watchtower fetches these events directly from the relays and computes: `Miner_Payout = (Miner_Shares_D / Total_Shares_D) × Invoice_Amount` using the Continuous Difficulty values — no pool permission required.
+
+The pool's payout math becomes a public, auditable state-machine. A miner does not need to believe the pool's number — they can recompute it themselves from the signed events.
+
+All three scenarios use the same underlying Z-Bit mathematics. The log-linear math and verification rules are formally defined in the [SNIP specifications](/specifications/snip-00).
+
+→ Continue to [The Market](/the-market/spending-bills)
+
+
+---
+
+## File: learn/the-z-bit-standard.mdx
+
+---
+title: "The Z-Bit Standard"
+description: "Understanding continuous difficulty and log-2 precision — the math behind Sharenote denominations."
+---
+
+> **Going Deeper** — This page covers the precise math behind Sharenote denominations. You should understand the [printing press analogy](/learn/what-is-sharenote) and [how denominations work](/learn/how-it-works) before continuing here.
+
+Sharenote separates human-readable denominations from the underlying cryptographic difficulty. This separation is what enables precision across decentralized applications.
+
+> **Why miners and pools need to understand this**: Every payout calculation, every multi-chain work claim, and every Sharenote label you see is derived from this math. If your stratum or pool software adds difficulty values incorrectly, payouts will be wrong. This page explains why — and how to do it right.
+
+## Discrete Labels vs Continuous Math
+
+A **Sharenote label** (e.g., `34Z10`) is a human-readable string acting as a **routing parameter** — it declares the *minimum* difficulty floor required for a note to be valid.
+
+However, the underlying computation is far more precise. Its exact density is called **Continuous Difficulty ($D$)**, expressed as a precise floating-point number in linear space derived from the actual hash target.
+
+> Think of Z-Bits like decibels for sound — a small numerical difference represents a large real-world change in actual difficulty. Just as you cannot simply add decibel values, you cannot add Z-Bit labels directly.
+
+### The Strict Aggregation Law
+
+Because Sharenote uses a log-2 scale for difficulty, summing discrete labels directly leads to severe precision loss.
+
+**Wrong**: `2Z00` + `10Z00` = `12Z00` ❌  
+**Correct**: Add in linear space, then convert back.
+
+**Worked example:**
+- `2Z00` $\rightarrow D = 2^2 = 4$
+- `10Z00` $\rightarrow D = 2^{10} = 1024$
+- $D_{\text{total}} = 4 + 1024 = 1028$
+- Result: $\log_2(1028) \approx 10.006 \rightarrow$ label `10Z00`, not `12Z00`
+
+The correct combined label is nearly identical to the larger one — the smaller share barely moves the total. This is why naive label addition is always wrong.
+
+All aggregation MUST follow the three-step law defined in [SNIP-00](/specifications/snip-00):
+
+1. $D = 2^B$ (Z-Bits $\rightarrow$ linear)
+2. $D_{\text{total}} = D_1 + D_2 + \dots + D_n$ (sum)
+3. $B_{\text{total}} = \log_2(D_{\text{total}})$ (back to Z-Bits)
+
+> **Key Rule**: Never add Sharenote labels directly. Always convert to Continuous Difficulty first ($D = 2^B$), sum in linear space, then convert back ($B = \log_2(D)$). The sharenote skill enforces this law automatically when generating aggregation code.
+
+→ Continue to [Learn by Example](/learn/learn-by-example)
+
+
+---
+
+## File: learn/use-cases.mdx
+
+---
+title: "Use Cases"
+description: "Three ways Sharenote creates energy-backed trust — for the open web, miners, and AI service providers."
+---
+
+How do you prove something is real on the open web?
+
+A "like" costs nothing. A "view" can be faked. An AI can generate a million posts overnight. Sharenote attaches verifiable energy to any interaction — making it physically expensive to fake at scale.
+
+Three distinct use cases. Each stands independently.
+
+## 1. The Next Web: Build Your Own Feed
+
+In the open social web (**Nostr**), there is no centralized algorithm. You are the algorithm. But in a world of infinite, zero-cost content, how do you find what matters?
+
+A Sharenote attached to a post is a verifiable sign of **energy spent**. Unlike a "like" or a "view," a Sharenote requires real computational work. Energy is the signal. It cannot be faked at scale.
+
+### Algorithmic Sovereignty
+
+Tell your AI agent exactly how to build your **feed** based on specific **topics** and difficulty floors:
+
+> *"Show me only posts about **#Bitcoin** that have accumulated at least `20Z00` in total proof-of-work from the last 24 hours."*
+
+Your agent verifies the math on the relay network and builds your feed based on **verifiable energy commitments**. A note printed by hardware simultaneously solving multiple chains counts in full — one computation, multiple valid proofs.
+
+→ [Learn how notes are printed and verified](/learn/the-z-bit-standard)
+
+> **Going deeper** — Use Cases 2 and 3 are for miners and service providers. They assume familiarity with the printing press analogy from [What is a Sharenote?](/learn/what-is-sharenote)
+
+## 2. Work Templates: One Puzzle, Multiple Claims
+
+Your hardware already solves one puzzle at full capacity. Today, that hash qualifies for one pool, one chain, one payout. Everything else it could have satisfied is discarded.
+
+Sharenote changes the outcome: when your hardware finds a hash, every configured target is checked simultaneously. If the hash qualifies for your primary Bitcoin pool — submitted. If it also meets a secondary AuxPoW chain's target — submitted there too. Both from one solved hash, at full hashrate, with no split.
+
+**Before**: one computation, one claim.
+**After**: one computation, every qualifying claim captured.
+
+Miners can also inject custom work into templates — such as social attestations on Nostr — that ride alongside primary mining at zero additional cost.
+
+→ [Configure your setup](/the-market/hashrate-monetization)
+
+## 3. Service Providers: Energy as Payment
+
+A service provider can require a printed Sharenote to establish consensus weight for a task. The note is the verifiable limit — unforgeable, energy-backed, separating pure noise from intentional human curation.
+
+A user who wants the service seamlessly outsources the required denomination to a Hashrate Provider in the market, who physically solves it and returns the proof. The user includes that proof with their request. Server-side verification takes milliseconds.
+
+This establishes a direct consensus channel between participants and the open market that operates on public infrastructure. No accounts. No hidden algorithms. The proof-of-work note is the entire consensus mechanism.
+
+→ [Getting Started for Agent Builders](/the-market/agent-integration)
+
+
+---
+
+## File: learn/what-is-sharenote.mdx
+
+---
+title: "What is a Sharenote?"
+description: "A Sharenote is a denomination of computational work — printed by hardware, verified by the network, owned by no one."
+---
+
+## Your Hardware is a Printing Press
+
+Think of a Sharenote like a banknote — except instead of paper and ink, it is made of energy and math.
+
+When you tell your hardware to print a `20Z00` Sharenote, it gets to work. It runs computations until it produces a result the network will accept as proof. That result is your note. Its denomination — `20Z00` — is stamped directly into it, proving exactly how much energy was spent to produce it.
+
+It cannot be faked, copied, or issued for free.
+
+**Any device can verify one.** From an industrial ASIC to a lightweight client. Printing at scale, however, is the job of dedicated Hashrate Providers in the market.
+
+## The Denomination is the Proof
+
+A `10Z00` note requires less energy to print than a `34Z10` note — the same way a \$10 bill represents less than a \$100 bill.
+
+But unlike printed currency, no authority decides what each denomination is worth. The denomination is a direct, mathematical record of energy spent. Higher denomination = more real work done. Always. No exceptions.
+
+**Routing scopes in the market:**
+
+| Denomination | Execution Scope |
+|---|---|
+| `10Z00` | Processed by background AuxPoW market routing |
+| `20Z00` | Requires dedicated hashrate providers for strong consensus weight |
+
+**Network-scale reference points:**
+
+| Denomination | What produces it |
+|---|---|
+| `57Z54` | The entire Dogecoin network's combined output in ~1 minute |
+| `78Z98` | The entire Bitcoin network's combined output in ~10 minutes |
+
+The first two denominations represent common consensus targets that applications outsource to Hashrate Providers. The last two represent the aggregate output of entire mining networks — millions of machines working in parallel. The same Z-Bit scale measures everything from a feed upvote to global block formation.
+
+> Network-scale denominations reflect current difficulty and shift as each network adjusts.
+
+## What Can You Attach It To?
+
+A Sharenote is a standalone proof. It can be attached to anything:
+
+- A submitted share from your **mining hardware**
+- A **job request** sent to a [Data Vending Machine](https://nips.nostr.com/90)
+- An **AI agent** request that requires a specific note before executing a task
+- A **social interaction** like a like or view on the **Nostr** network
+- A **message** posted to a public channel
+- An **article** published on the open web
+- An **API request** from a user's device
+
+Whatever it is attached to, the note says the same thing: *"Real energy was spent to produce this. It is not free. It is not synthetic."*
+
+→ See what is possible in [Use Cases](/learn/use-cases)
+
+
+---
+
+## File: specifications/snip-00.mdx
+
+---
+title: "SNIP-00: Core Math"
+description: "Protocol Terminology & Core Mathematical Constraints"
+---
+
+## Status
+Stable
+
+## Motivation
+Proof-of-work difficulty exists on a logarithmic scale — a single Z-Bit increase doubles the computational work required. This property makes discrete labels (like `34Z10`) useful for human-readable communication, but mathematically invalid for aggregation. Summing labels directly produces results that are off by orders of magnitude.
+
+This specification establishes the mandatory conversion to linear space (Continuous Difficulty) before any aggregation operation, and defines the canonical label format derived from the result. All implementations, pool backends, and relay-side validators MUST conform to this math to guarantee interoperability across the Sharenote network.
+
+## Abstract
+This document establishes the base protocol definitions and mathematical laws governing Sharenote. It provides the vocabulary required across all Sharenote Improvement Proposals (SNIPs) to differentiate between proof-of-work execution (physical shares) and deterministic identifiers (Sharenote routing labels).
+
+## Terminology
+
+- **Sharenote**: A cryptographically verifiable unit of proof-of-work, expressed as a discrete text label (e.g., `34Z10`). It serves as a routing parameter and pricing floor for indexing engines. It MUST NOT be used for mathematical arithmetic.
+- **Z-Bits**: The base unit of difficulty measurement. Z-Bits represent difficulty on a logarithmic (log-2) scale.
+- **Physical Share**: The raw hash execution submitted by mining hardware — the actual proof that work was done.
+- **Continuous Difficulty ($D$)**: The exact mathematical density of the physical share execution, measured dynamically based on target thresholds. All accounting MUST use $D$, not the discrete label.
+- **Discrete Label**: A human-readable string (`XZYY` format, e.g., `34Z10`) where `X` is the integer Z-bit floor and `YY` is the truncated centi-bits. A label is a **floor declaration**, not a precise value.
+
+> New to these terms? See the [Glossary](/learn/glossary).
+
+## Specification
+
+### Computing Z-Bits from a Target
+
+For a given 256-bit target $T$:
+
+$$
+D = \frac{2^{256}}{T}
+$$
+
+$$
+B = \log_2(D)
+$$
+
+### Formatting a Discrete Label
+
+Given Z-bit value $B$:
+
+$$
+Z = \lfloor B \rfloor
+$$
+
+$$
+C = \lfloor (B - Z) \times 100 + 10^{-9} \rfloor
+$$
+
+$$
+\text{Label} = Z\text{Z}C \text{ (padded to 2 digits)}
+$$
+
+The label declares a minimum floor of at least `Z.C` bits of entropy. A validator MUST NOT use the label string to verify a target — it MUST recompute `D` from the raw hash.
+
+### The Strict Aggregation Law
+
+Summing discrete labels directly is mathematically invalid. All aggregation MUST operate in linear difficulty space:
+
+**Step 1.** Convert each Z-Bit value to Continuous Difficulty:
+
+$$
+D = 2^B
+$$
+
+**Step 2.** Sum all $D$ values:
+
+$$
+D_{\text{total}} = D_1 + D_2 + \dots + D_n
+$$
+
+**Step 3.** Convert back to Z-Bits:
+
+$$
+B_{\text{total}} = \log_2(D_{\text{total}})
+$$
+
+**Worked example:**
+
+`2Z00` + `10Z00`:
+
+$$
+D_1 = 2^2 = 4
+$$
+
+$$
+D_2 = 2^{10} = 1024
+$$
+
+$$
+D_{\text{total}} = 4 + 1024 = 1028
+$$
+
+$$
+B_{\text{total}} = \log_2(1028) \approx 10.006 \rightarrow \text{label } \texttt{10Z00} \text{, not } \texttt{12Z00}
+$$
+
+> **IEEE-754 Warning**: Standard 64-bit floats lose precision when accumulating millions of micro-shares. Pools MUST use rational number libraries or fixed-point arithmetic for long-running accumulators.
+
+> **Poisson Note**: Poisson probability distributions are used for *reliability estimation* — predicting the probability of producing a note within a given time window. This is distinct from the aggregation formula above and MUST NOT be conflated with it.
+
+## Rationale
+Continuous difficulty ensures pool accounting and independent tracking tools retain full fidelity without rounding errors native to integer-based pseudo-difficulty schemas.
+
+## Vibe Coding Integration
+Builders do not need to manually implement continuous difficulty floating-point logic. By invoking `npx skills add soprinter/skills`, your AI assistant natively understands the strict mathematics outlined in this specification.
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
+
+
+---
+
+## File: specifications/snip-02.mdx
+
+---
+title: "SNIP-02: Hashrate & Telemetry"
+description: "Standardizing live hashrate telemetry broadcasts over Nostr."
+---
+
+## Status
+Stable
+
+## Abstract
+This specification defines the standard event schema for streaming live Sharenote hashrate metrics over Nostr (**Kind 35502**). By establishing a unified telemetry format, SNIP-02 enables seamless interoperability between mining hardware, pool monitors, and global hashrate aggregators.
+
+## Motivation
+A standardized telemetry schema enables miners and pools to broadcast live performance data to any subscriber — dashboards, watchtowers, and pool federation nodes — using entirely public cryptographic proofs.
+
+## Specification
+
+A telemetry broadcast (Nostr **Kind 35502**) uses an **empty `content` field**. All data is transported via tags to minimize payload size during high-frequency broadcasts.
+
+### Core Tags
+
+| Tag | Format | Required | Description |
+|-----|--------|----------|-------------|
+| `a` | `["a", "<address>"]` | ✅ Mandatory | Chain address of the mining operation |
+| `all` | `["all", "<hashrate>", "msn:<label>"]` | One of `all` or `h` | Total EMA-adjusted hashrate across all workers (H/s). Inline `msn:<label>` carries the mean Sharenote. Used in multi-worker farm mode. |
+| `h` | `["h", "<hashrate>", "msn:<label>"]` | One of `all` or `h` | Single-worker hashrate. Inline `msn:<label>` carries the mean Sharenote. Used when there is no aggregate total. |
+
+One of `all` or `h` **MUST** be present.
+
+### Per-Worker Tags
+
+Individual ASICs or machines are appended using `w:`-prefixed tags. Each worker tag carries a series of `key:value` sub-fields:
+
+```
+["w:<worker_name>", "h:<hashrate>", "sn:<label>", "msn:<mean_label>", "csn:<count>", "crsn:<rejected>", "mt:<seconds>", "lsn:<unix>", "ua:<agent>"]
+```
+
+| Sub-field | Description |
+|-----------|-------------|
+| `h:<hashrate>` | (Required) Worker's EMA-adjusted hashrate in H/s |
+| `sn:<label>` | Minimum difficulty label assigned to the worker |
+| `msn:<mean_label>` | Mean Sharenote difficulty achieved by this worker |
+| `csn:<count>` | Total count of accepted sharenotes |
+| `crsn:<rejected>` | Count of rejected sharenotes. Omitted when zero. |
+| `mt:<seconds>` | Mean time in seconds between accepted shares |
+| `lsn:<unix>` | Unix timestamp of the last submitted valid share |
+| `ua:<agent>` | User-agent string identifying the mining software |
+
+Workers are sorted alphabetically by name.
+
+### Validation Constraints
+
+Relays storing Kind 35502 events MUST enforce:
+1. Presence of exactly one `a` tag.
+2. Presence of an `all` or `h` tag containing a valid hashrate value.
+3. Valid Nostr signature (to prevent hashrate spoofing).
+
+### Example Event
+
+```json
+{
+  "kind": 35502,
+  "pubkey": "b7e1c3a0d4e9f2a1b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6",
+  "created_at": 1712345678,
+  "content": "",
+  "tags": [
+    ["a", "bc1qxyz..."],
+    ["all", "102400000000000", "msn:34z10"],
+    ["w:rig-01", "h:51200000000000", "sn:34z10", "msn:34z05", "csn:412", "mt:3.8", "lsn:1712345600", "ua:bmminer/2.0"],
+    ["w:rig-02", "h:51200000000000", "sn:34z00", "msn:33z90", "csn:388", "mt:4.1", "lsn:1712345610", "ua:bmminer/2.0"]
+  ],
+  "sig": "..."
+}
+```
+
+### Privacy Recommendations
+
+All worker fields (`sn:`, `h:`, `msn:`, `ua:`) are publicly readable by any subscriber. Operators who wish to limit hardware topology disclosure — for example, to avoid revealing ASIC model mix — SHOULD rotate the `<worker_name>` identifier rather than using static MAC addresses or persistent device identifiers.
+
+## Rationale
+A common telemetry format over Nostr enables any dashboard or aggregator to display live hashrate without coordination with the miner or pool. The strict tag schema guarantees all parsing SDKs deserialize parameters without precision loss.
+
+## Vibe Coding Integration
+Builders do not need to manually parse or construct Kind 35502 arrays. By invoking `npx skills add soprinter/skills`, your AI assistant natively understands the precise tagging architecture outlined in this specification.
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
+
+
+---
+
+## File: specifications/snip-03.mdx
+
+---
+title: "SNIP-03: Pool Accounting"
+description: "Decentralized pool accounting pipeline over Nostr."
+---
+
+## Status
+Draft
+
+## Abstract
+This proposal defines a public, cryptographically verifiable accounting pipeline for decentralized mining pools. By migrating pool ledgers to the Nostr network (Kinds `35500`–`35505`), pools broadcast block invoices and miner payout slices directly to workers. Miners can independently verify unpaid balances and proportional payouts without trusting the pool operator.
+
+## Motivation
+A verifiable on-chain accounting pipeline enables miners to independently track their own contribution and calculate their expected payout directly — while allowing pool operators to issue cryptographically signed, publicly readable payout records that remove the need for miners to trust any pool's internal ledger.
+
+## Specification
+
+Mining pools MUST follow continuous math aggregation (as defined in [SNIP-00](/specifications/snip-00)) when calculating miner balances. All events MUST be signed with the pool's Nostr private key.
+
+## 1. Pool Invoicing Logic
+
+Before a pool can distribute rewards, it must declare the block it secured.
+
+| Kind | Name | Triggered when |
+|------|------|----------------|
+| `35500` | Unpaid Invoice | A block is found — reward is declared but miners are not yet paid |
+| `35501` | Settled Invoice | The on-chain payout transaction has been confirmed |
+
+**Tag Structure (Kinds 35500 and 35501):**
+
+| Tag | Format | Required | Description |
+| :-- | :----- | :------: | :---------- |
+| `d` | `["d", "<HeightHash>"]` | Yes | Unique identifier. blake2b-256 hash of the block height integer. |
+| `b` | `["b", "<BlockHash>"]` | Yes | 32-byte hex block hash. |
+| `height` | `["height", "<int>"]` | Yes | Block height as a decimal integer. |
+| `amount` | `["amount", "<int>"]` | Yes | Total block reward available in satoshis. |
+| `workers` | `["workers", "<int>"]` | Yes | Number of participating workers. |
+| `shares` | `["shares", "<Label>"]` | Yes | Pool's combined difficulty for this block (Sharenote label). |
+| `x` | `["x", "<Txid>", "<Height>", "<Hash>"]` | No | On-chain settlement confirmation. Required on Settled Inbound (`35501`). |
+
+**Example (Kind 35500 — Unpaid Invoice):**
+```json
+{
+  "kind": 35500,
+  "tags": [
+    ["d", "9d83d89f11bc0b930935e9a58e93ac1e43cdcaf25e8e4d68dc4c96763208f479"],
+    ["b", "000000000000000000024bead8df699900000000000000000000000000000000"],
+    ["height", "843000"],
+    ["amount", "312500000"],
+    ["shares", "44Z00"],
+    ["workers", "128"]
+  ],
+  "content": ""
+}
+```
+
+## 2. Miner Payout Slicing
+
+Once the invoice is established, the pool publishes the individual miner's payout portion.
+
+| Kind | Name | Description |
+|------|------|-------------|
+| `35503` | Pending Share | Unconfirmed WIP shares for a miner. |
+| `35504` | Finalized Share | Shares committed to a specific block height — the payout slice is locked and will not change. |
+| `35505` | Share Payment | Direct financial routing confirmation. |
+
+**State machine progression:**
+
+```
+35503 (Pending)  →  35504 (Finalized)  →  35505 (Paid)
+     ↑                     ↑                   ↑
+  Shares submitted     Block found,          On-chain tx
+  while block          round closes          confirmed
+  window is open
+```
+
+> [!IMPORTANT]
+> When transitioning from **Pending (35503)** to **Finalized (35504)**, the pool MUST publish a **Deletion (Kind 5)** event referencing the original 35503 events to ensure they disappear from the miner's current unpaid tally.
+
+**Tag Structure (Kinds 35503, 35504, 35505):**
+
+| Tag | Format | Required | Description |
+| :-- | :----- | :------: | :---------- |
+| `d` | `["d", "<ShareID>"]` | Yes | Unique share identifier. |
+| `a` | `["a", "<Address>"]` | Yes | Miner's chain receiving address. |
+| `h` | `["h", "<HeightHash>"]` | Yes | blake2b-256 hash of the block height. |
+| `b` | `["b", "<BlockHash>"]` | Yes | 32-byte hex block hash. |
+| `chain` | `["chain", "<ChainID_hex>"]` | No | Hex-encoded chain ID (e.g., `"15"` for chain 21). Defaults to `"15"`. |
+| `workers` | `["workers", "<name>", ...]` | Yes | One or more worker names. |
+| `height` | `["height", "<int>"]` | Yes | Block height. |
+| `amount` | `["amount", "<int>"]` | Yes | Miner's payout amount in satoshis. |
+| `shares` | `["shares", "<Label>", "<count>"]` | Yes | Miner's difficulty label and sharenote count. |
+| `totalshares` | `["totalshares", "<Label>", "<count>"]` | Yes | Pool's aggregate difficulty for proportional calculation. |
+| `timestamp` | `["timestamp", "<unix_ms>"]` | Yes | Creation timestamp in milliseconds. |
+| `fee` | `["fee", "<int>"]` | No | Transaction fee deducted from payout. |
+| `eph` | `["eph", "<int>"]` | No | Estimated payment height. |
+| `sn` | `["sn", "<event_id>", ...]` | No | References to Sharenote minting events (Kind 35510). |
+| `x` | `["x", "<Txid>", ...]` | No | Settlement transaction ID. Required on 35505. |
+
+**Example (Kind 35503 — Pending Share):**
+```json
+{
+  "kind": 35503,
+  "tags": [
+    ["d", "4df56feb0a58e4e0f553dabdc4a5c95e8daa284fad3fa14ac97d82224de84952"],
+    ["a", "bc1qminer..."],
+    ["h", "9d83d89f11bc0b930935e9a58e93ac1e43cdcaf25e8e4d68dc4c96763208f479"],
+    ["b", "000000000000000000024bead8df699900000000000000000000000000000000"],
+    ["workers", "rig-01"],
+    ["height", "843000"],
+    ["amount", "2441406"],
+    ["shares", "34Z10", "1"],
+    ["totalshares", "44Z00", "128"],
+    ["timestamp", "1712345678000"]
+  ],
+  "content": ""
+}
+```
+
+## 3. The Proportional Arithmetic Law
+
+**Watchtowers** verifying payout events MUST implement continuous math ([SNIP-00](/specifications/snip-00)):
+
+$$
+\text{Miner\_Payout} = \frac{\text{Miner\_Shares\_D}}{\text{Total\_Shares\_D}} \times \text{Invoice\_Amount}
+$$
+
+Where `Miner_Shares_D` and `Total_Shares_D` are the Continuous Difficulty values computed from their respective Sharenote labels. Using the raw string labels for division is non-compliant.
+
+> **Note**: Label-based string substitution or textual label truncation to perform payout slicing is explicitly prohibited.
+
+## Rationale
+Using a multi-kind pipeline creates a transparent state-machine over Nostr. External SDKs and dashboards reconstruct pool financial state using entirely public cryptographic proofs.
+
+## Vibe Coding Integration
+Builders do not need to manually construct the multi-kind accounting pipeline. By invoking `npx skills add soprinter/skills`, your AI assistant natively understands the event state machine outlined in this specification.
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
+
+
+---
+
+## File: specifications/snip-04.mdx
+
+---
+title: "SNIP-04: Raw Printing & AuxPoW"
+description: "Formatting Merged Mining block headers into standalone verifiable Nostr payloads."
+---
+
+## Status
+Draft
+
+## Abstract
+This specification defines the standard formatting for packaging Merged Mining (AuxPoW) block headers into standalone, verifiable payloads.
+
+By embedding proof-of-work Merkle branch data into Nostr objects (**Kind 35510**), SNIP-04 provides validators with direct cryptographic access to the raw execution logic required to authenticate a printed Sharenote.
+
+Solo miners and independent proxies use Kind 35510 to publish raw printing events — without a pool accounting pipeline (SNIP-03). This is the primary path for miners operating independently.
+
+## Cryptographic Header Payloads
+
+When a note is printed, the broadcasting agent provides the unparsed header encoded in hex via the `dd` tag. Validators hash this hex to confirm it results in `d` (HeaderHash) and satisfies the leading-zero bounds dictated by `z` (Sharenote denomination).
+
+**Tag Structure:**
+
+| Tag | Format | Required | Description |
+| :-- | :----- | :------: | :---------- |
+| `d` | `["d", "<HeaderHash>"]` | Yes | Block header hash. Unique identifier for the sharenote. |
+| `a` | `["a", "<address>", "<worker>", "<agent>"]` | Yes | Miner attribution: chain address, worker name, and user-agent string. |
+| `z` | `["z", "<label>"]` | Yes | Sharenote denomination label, always lowercase (e.g., `"34z10"`). |
+| `w` | `["w", "<BlockHash>", "<ChainID_hex>", "<Height>", "<Solved>", "<Label>"]` | Yes | Auxiliary block entries (see below). One or more required. |
+| `dd` | `["dd", "<HeaderHex>"]` | Yes | Full block header encoded as hex. Always the last tag. |
+
+**Example:**
+```json
+[
+  ["d", "0000000000000000abcd1234..."],
+  ["a", "fc1qxyz...", "antminer-s19", "bmminer/2.0.0"],
+  ["z", "34z10"],
+  ["w", "000000ab...", "15", "843000", "true", "40z00"],
+  ["w", "000001cc...", "2a", "110000", "false", "34z10"],
+  ["dd", "0100000081cd02ab..."]
+]
+```
+
+*(The `a` tag must include the routing address so the worker can optionally be compensated.)*
+
+**Validation rule**: Compute the double-SHA256 of `dd`, confirm it equals `d`, then check that the leading zeros satisfy `z`.
+
+## Merged Mining (AuxPoW) Subsidiaries
+
+A single hash execution can solve multiple independent blockchains if their targets are met concurrently. To map these subsidiary proofs, the event includes an array of `w` tags. 
+
+The **primary chain** `w` tag MUST appear first, followed by auxiliary chain entries.
+
+```json
+[
+  ["w", "<BlockHash>", "<ChainID>", "<Height>", "<Solved>", "<Label>"],
+  ["w", "000000ab...", "15", "843000", "true", "40z00"],
+  ["w", "000001cc...", "2a", "110000", "false", "34z10"]
+]
+```
+
+**Tag Definitions:**
+
+| Field | Description |
+|-------|-------------|
+| `[1] BlockHash` | The auxiliary target hash. |
+| `[2] ChainID` | Hex-encoded integer network ID (e.g., `"15"` for decimal 21). |
+| `[3] Height` | Chain block height as a decimal integer. |
+| `[4] Solved` | Boolean string (`"true"` or `"false"`) indicating whether this hash reached the network subsidy target (`true`), or only passed the lower Sharenote boundary (`false`). |
+| `[5] Label` | The Sharenote difficulty label for this branch (lowercase). |
+
+## Rationale
+Embedding raw Merkle branch data directly in the Nostr event enables any third party to independently verify the proof-of-work without contacting the original miner or pool. The Kind 35510 payload is self-contained and cryptographically complete.
+
+## Vibe Coding Integration
+Builders do not need to manually construct or validate raw Kind 35510 block headers. By invoking `npx skills add soprinter/skills`, your AI assistant natively understands the AuxPoW merkle specifications outlined in this document.
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
+
+
+---
+
+## File: specifications/snip-05.mdx
+
+---
+title: "SNIP-05: Miner & Pool Identity"
+description: "Register chain receiving addresses and pool operational parameters by binding Nostr identity to chain-specific configurations."
+---
+
+## Status
+Draft
+
+## Abstract
+This specification defines identity events for participants in the Sharenote mining ecosystem. Two distinct event kinds allow miners and pool operators to publish their profiles, chain addresses, and operational parameters over Nostr.
+
+
+## 1. Miner Identity (Kind 10520)
+
+A miner publishes a single replaceable event declaring which chain addresses they control. This allows pools, dashboards, and settlement systems to discover where to send payouts.
+
+**Content:** Empty string.
+
+**Tag Structure:**
+
+| Tag | Format | Required | Description |
+| :-- | :----- | :------: | :---------- |
+| `a` | `["a", "<chain_id>", "<address>"]` | Yes | Chain address binding. Hex-encoded chain ID and the miner's receiving address. One or more `a` tags allowed. |
+| `payout` | `["payout", "<scheme>"]` | No | Miner's preferred payout scheme (e.g., `"pplns"`, `"pps"`). |
+
+### Multi-Chain Support
+
+A miner operating on multiple chains publishes a single event containing multiple `a` tags, one for each chain.
+
+**Example (Multi-chain miner):**
+```json
+{
+  "kind": 10520,
+  "content": "",
+  "tags": [
+    ["a", "15", "fc1q0vw9cmzqqc3vxfhd7m4zcqf8n82s9gsmagr02a"],
+    ["a", "01", "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq"],
+    ["payout", "pplns"]
+  ]
+}
+```
+
+## 2. Pool Identity (Kind 10521)
+
+A pool operator publishes a single replaceable event declaring their pool profile, accepted chains with fee schedules, supported payout schemes, and operational parameters.
+
+**Content:** Optional JSON object following the NIP-01 `set_metadata` convention (name, about, picture, website).
+
+**Tag Structure:**
+
+| Tag | Format | Required | Description |
+| :-- | :----- | :------: | :---------- |
+| `a` | `["a", "<chain_id>", "<address>", "<fee_bps>"]` | Yes | Chain address with pool fee in basis points (1 bps = 0.01%). One or more `a` tags allowed. |
+| `payout` | `["payout", "<scheme>", "<key:value>", ...]` | Yes | Supported payout scheme (e.g., `pps`, `pplns`, `prop`, `solo`). |
+| `sharenote` | `["sharenote", "<min_label>"]` | No | Minimum accepted sharenote denomination floor (e.g., `"30z00"`). |
+| `threshold` | `["threshold", "<chain_id>", "<amount>"]` | No | Minimum payout threshold in satoshis. |
+
+### Supported Payout Schemes
+
+| Scheme | ID | Description | Parameters |
+| :----- | :- | :---------- | :--------- |
+| Pay Per Share | `pps` | Fixed payment per valid share. | — |
+| PPLNS | `pplns` | Proportional to shares in a sliding window. | `n:<window_size>` |
+| Proportional | `prop` | Simple proportional split of block reward. | — |
+| Solo | `solo` | Miner receives full block reward (infrastructure only). | — |
+
+**Example (Multi-chain PPLNS pool):**
+```json
+{
+  "kind": 10521,
+  "content": "{\"name\":\"AlphaPool\",\"website\":\"https://alphapool.io\"}",
+  "tags": [
+    ["a", "15", "fc1qpoolalpha...", "150"],
+    ["a", "01", "bc1qpoolalpha...", "200"],
+    ["payout", "pplns", "n:10000"],
+    ["sharenote", "30z00"],
+    ["threshold", "15", "100000"]
+  ]
+}
+```
+
+## 3. Validation Rules
+
+1. **Miner Identity (10520)**: At least one `a` tag MUST be present. Each MUST contain exactly 3 elements.
+2. **Pool Identity (10521)**: At least one `a` tag and one `payout` tag MUST be present. `a` tags MUST contain exactly 4 elements.
+3. **Chain IDs**: MUST be valid hex strings (e.g., `"15"` for chain 21).
+4. **Uniqueness**: Duplicate chain IDs within a single event are NOT allowed.
+
+## Rationale
+Using replaceable events (10000–19999) ensures that users only ever need to discover the latest identity for a given pubkey. Moving the accounting and identity logic to Nostr eliminates the need for miners to trust centralized pool dashboards.
+
+## Vibe Coding Integration
+Builders do not need to manually parse or construct identity arrays. By invoking `npx skills add soprinter/skills`, your AI assistant natively understands the identity schemas outlined in this specification.
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
+
+
+---
+
+## File: the-market/agent-integration.mdx
+
+---
+title: "Agent Integration"
+description: "How Agent Builders request Sharenote bills to securely gate their automated services."
+---
+
+Your agent needs to prove that a request is real — not generated by a bot, not replayed, not free.
+
+Sharenote gives it a mathematically unforgeable way to do that. Your agent sets a difficulty target. The user's client outsources the work to the market. When the proof comes back, your backend verifies it in milliseconds.
+
+## The Invoice Pattern
+
+Your agent operates on a simple Request-Invoice-Fulfillment pattern:
+
+1. **User Request**: A user (or another system) submits a request to your agent via NIP-90 (Data Vending Machine) or your proprietary API.
+2. **Set the Target**: Your agent issues a challenge requiring a specific Sharenote denomination (e.g., `20Z00` for basic feed sorting, or `30Z50` for LLM fine-tuning data validation).
+3. **Execution**: The user's client outsources that requirement to the market. A Hashrate Provider solves it, and the user submits the mathematically generated proof back to your agent.
+4. **Server Verification**: Your backend computes the exact continuous difficulty of the submitted hash to verify it meets the requested floor.
+5. **Fulfillment**: If valid, the agent executes the action. 
+
+## Vibe Coding Your Integration
+
+You don't need to manually write complex parsing logic or continuously audit logarithmic difficulty conversions. Instead, you can rapidly prototype and execute your Agent Builder flow using AI-assisted "vibe coding."
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
+
+No accounts. No API keys. The proof-of-work note is the only credential your agent needs.
+
+
+---
+
+## File: the-market/faqs.mdx
+
+---
+title: "FAQs"
+description: "Direct answers to the most common questions about Sharenote — from miners, builders, and curious newcomers."
+---
+
+## Do I need new hardware?
+
+**No.** Sharenote works with your existing ASIC or GPU hardware. However, it requires a protocol-aware Stratum server to manage the Work Templates and sign the resulting notes. There is an active initiative to integrate Sharenote support directly into standard Stratum implementations.
+
+## Is a Sharenote a coin?
+
+**No.** A Sharenote is a proof-of-work note — a denomination of computational work, not a transferable currency. Think of it like a signed receipt that proves real energy was spent. It is not a coin, not a token, and not an NFT.
+
+## Can AI bots print Sharenotes?
+
+**Yes — but not for free.** A bot can run the computation. But at scale, the energy cost becomes real. Requiring a `20Z00` note per request means a bot sending a million requests must genuinely spend the computational equivalent of a million legitimate users. The math makes mass abuse economically unviable.
+
+## Does this replace my pool?
+
+**No.** Sharenote is an integrated protocol layer. While your hardware continues to solve puzzles exactly as before, the Stratum server you connect to must be Sharenote-aware to capture and publish the signed records of your work to the open relay network.
+
+## Is my work auditable?
+
+**Yes — by anyone.** Every note printed is published to the Nostr relay network, signed with your identity. Any miner, auditor, application, or third party can read those records at any time without asking a pool for permission.
+
+## What denomination should I use for consensus weight?
+
+It depends on the balance between the weight of the action and the scope of the required computation:
+
+| Denomination | Generation Scope | Use case |
+|---|---|---|
+| `10Z00` | Background AuxPoW processing | Light feed sorting |
+| `20Z00` | Basic market routing | Standard data curation and upvoting |
+| `25Z00` | High-capacity market routing | LLM fine-tuning data validation |
+
+Because true proof-of-work physically requires time and energy, high-target scopes like `25Z00` necessitate outsourcing to dedicated Hashrate Providers. You can calculate your exact hardware capacity using the [Planner & Calculator](/the-market/planner-calculator).
+
+## What is Nostr?
+
+Nostr is an open protocol for distributing cryptographically signed messages across a network of independent servers called relays. Anyone can run a relay. No relay can alter a message — the signature would break if they tried. Sharenote uses Nostr as the public layer where all printed notes are recorded.
+
+→ [Full Nostr definition in the Glossary](/learn/glossary#nostr)
+
+## How do I test in development?
+
+Use a low denomination like `10Z00` during development — it requires minimal computation and exercises the full proof-of-work → verification flow. Your test suite can generate and verify notes to simulate the market behavior.
+
+For relay testing, you can run a local Nostr relay (e.g. [strfry](https://github.com/hoytech/strfry) or [nostream](https://github.com/Cameri/nostream)) to publish and read events without hitting public relays.
+
+## Where do I start?
+
+Choose your path:
+
+- **Hashrate Provider** → [Hashrate Monetization](/the-market/hashrate-monetization)
+- **Agent Builder** → [Agent Integration](/the-market/agent-integration)
+- **Work Template** → [Hashrate Monetization](/the-market/hashrate-monetization)
+- **Just curious** → [What is a Sharenote?](/learn/what-is-sharenote)
+
+
+---
+
+## File: the-market/hashrate-monetization.mdx
+
+---
+title: "Hashrate Monetization"
+description: "How Hashrate Providers connect to Work Templates to monetize their idle compute in the Sharenote market."
+---
+
+Your hardware already prints work every second. Most of that output qualifies for targets you are not currently claiming.
+
+The Sharenote market routes real user interaction feeds — upvotes, agent requests, data validation jobs — directly to your stratum setup via AuxPoW. You solve them alongside your primary chain, at full hashrate, with zero split. Every qualifying proof earns a reward.
+
+## Your Role in the Market
+
+You take these real-time feeds and inject them into your auxiliary proof-of-work array. By running these jobs, you provide the critical energy-backed trust layer the Next Web demands.
+
+### Vibe Coding Your Setup
+
+Integrating stratum components and managing Nostr event pipelines can be completely hands-off. Rather than writing integration scripts from scratch, invite your AI coding assistant to build the architecture for you.
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
+
+### Integration Steps
+
+1. **Identity Setup**: Configure your protocol-aware Stratum server with your Nostr private key. This is the cryptographic identity that will sign your proofs.
+2. **Connect to a Work Template**: Connect to a routing hub that aggregates interaction feeds and user jobs and broadcasts them as a continuous stream of tasks.
+3. **Inject the Feed**: Intercept these jobs and dynamically insert them into your existing stratum connection. As you hash, your protocol integration builds the Merkle branch that attaches your spent energy to the specific user request.
+4. **Publish and Execute**: A completed proof is returned to the Work Template relay or the end Agent. The verifier checks your exact logarithmic difficulty (Z-Bits), the job is executed, and you earn the designated reward.
+
+> **Note**: Your AI assistant will handle generating the exact Nostr payload parameters and logarithmic constraints strictly following the Sharenote SNIP formats.
+
+For instructions on calculating your exact Z-Bit capacity across a given time window, see the [Planner & Calculator](/the-market/planner-calculator) guide.
+
+
+---
+
+## File: the-market/planner-calculator.mdx
+
+---
+title: "Sharenote Planner"
+description: "Calculate Z-Bits and map your hardware's hashing capacity to Sharenote difficulty."
+---
+
+The **Sharenote Planner** tells you what denomination of note your hardware can reliably print.
+
+Enter your hashrate — the speed your hardware runs at — and the Planner calculates the exact Sharenote denomination your setup produces. No manual math required.
+
+**[Open the live Planner →](https://sharenote.xyz/planner)**
+
+```
+Example:
+Input:  100 TH/s, 24-hour window
+Output: 61Z70  (printed reliably 90% of the time)
+        60Z11  (printed reliably 99.9% of the time)
+```
+
+## Reliability Presets
+
+The Planner outputs labels at two confidence intervals using the Poisson probability distribution:
+
+| Preset | Meaning |
+|--------|---------|
+| `usually_90` | The Sharenote label your setup will produce *at least* 90% of the time within the target window. A pragmatic working estimate. |
+| `almost_999` | The label your setup will produce 99.9% of the time. Conservative — useful for setting guaranteed minimums in contracts or consensus thresholds. |
+
+The difference between presets represents the statistical variance of proof-of-work. Higher difficulty targets have more variance.
+
+## How Hashrate Maps to Z-Bits
+
+Sharenote uses a log-2 scale for difficulty. The exact mathematical density of a Physical Share (its Continuous Difficulty) is converted into a human-readable label via the planning functions.
+
+Your AI coding assistant handles all log-linear conversions and Poisson probability multipliers when you use the Sharenote skill.
+
+→ [Read the official Vibe Coding Integration Guide](/the-market/vibe-coding)
+
+
+---
+
+## File: the-market/skills.mdx
+
+---
+title: "AI & Developer Skills"
+description: "How to integrate Sharenote's protocol knowledge directly into your AI assistant or agentic workflows."
+---
+
+Sharenote is built for the era of AI-assisted development. We provide a suite of "Skills" that allow your LLM (Large Language Model) to understand the strict mathematical constraints and Nostr event schemas required to build on the protocol.
+
+## Installing the Sharenote Skill
+
+If you are using a compatible AI agent or CLI (like Gemini CLI), you can add Sharenote protocol expertise with a single command:
+
+```bash
+npx skills add soprinter/skills
+```
+
+Once installed, your AI assistant will be able to:
+- **Perform Core Math**: Calculate Z-bits, continuous difficulty, and perform valid linear aggregation.
+- **Construct Events**: Build and validate Nostr Kinds 35500-35510 with perfect tag precision.
+- **Audit Payouts**: Verify proportional pool shares from public hash records.
+- **Reference SDKs**: Use the exact functions from `go-sharenote`, `sharenotejs`, and `sharenotelib`.
+
+## Why Use Skills?
+
+Proof-of-work difficulty exists on a logarithmic scale. Standard LLMs often struggle with the nuances of log-2 addition and floating-point precision in a decentralized context. 
+
+The Sharenote Skill provides:
+1. **Mathematical Grounding**: Prevents "hallucinations" in difficulty calculations.
+2. **Schema Enforcement**: Ensures every Nostr event you produce is valid and interoperable.
+3. **Idiomatic SDK Usage**: Guides your agent to use our optimized libraries instead of rewriting complex logic.
+
+## LLM-Friendly Documentation
+
+We provide compressed, LLM-optimized versions of our documentation for use in "Context Windows" or as reference material for AI crawlers:
+
+- **[llms.txt](/llms.txt)**: A high-level summary of the protocol and its core concepts.
+- **[llms-full.txt](/llms-full.txt)**: A full, concatenated version of all documentation and specifications.
+
+## Building with AI
+
+When building with Sharenote, we recommend a "Vibe Coding" approach where you describe your intent and let your skill-equipped agent handle the implementation details.
+
+→ [Learn more about Vibe Coding Integration](/the-market/vibe-coding)
+
+
+---
+
+## File: the-market/spending-bills.mdx
+
+---
+title: "Spending Bills"
+description: "How Everyday Users seamlessly interact with the Sharenote market without mining or draining device batteries."
+---
+
+You never touch mining hardware. You never drain your battery.
+
+When your feed needs sorting, when your upvote needs weight, or when your AI agent needs verifiable data — the open market handles the heavy computation on your behalf. You simply present the energy-backed proof that dedicated Hashrate Providers print for you.
+
+## Outsourcing the Print
+
+When you perform an action that demands a Sharenote Bill (e.g., asserting consensus weight on a feed), the interaction happens seamlessly in the background:
+
+1. **The Request**: Your wallet or client app recognizes that an action requires a proof-of-work bill (e.g., `20Z00`).
+2. **The Outsource**: Your client delegates this requirement to a **Hashrate Provider** (a dedicated miner) over the network.
+3. **The Fulfillment**: The Provider injects your specific job into their hardware, calculates the required energy, and returns the mathematically verifiable proof to your client.
+4. **The Spend**: Your client attaches the mathematically verifiable PoW to your action, permanently asserting its consensus weight.
+
+## What This Means for You
+
+The computationally heavy process of establishing trust remains completely invisible to you.
+
+- You can meaningfully sort feeds and data without manual verification.
+- You pay for exactly what you request, on a per-action basis.
+- Your personal device's battery and processing limit are never impacted.
+
+→ See how the market works behind the scenes in [Agent Integration](/the-market/agent-integration)
+
+
+---
+
+## File: the-market/vibe-coding.mdx
+
+---
+title: "Vibe Coding Integration"
+description: "Build with Sharenote using AI-assisted Vibe Coding — no cryptographic math required."
+---
+
+Build Sharenote-powered apps without writing a single line of cryptographic math.
+
+The protocol's difficulty calculations, binary formatting, and verification rules are complex by design. You should not implement them by hand. Instead, teach your AI coding assistant the entire Sharenote protocol in one command — and let it write the integration for you.
+
+## The Sharenote Skill
+
+By explicitly attaching the Sharenote Protocol skill to your AI assistant's context workspace, the assistant natively understands the math, the tagging rules, and the verification schemas outlined in the SNIP specifications.
+
+To install this capability, drop into your terminal and run:
+
+```bash
+npx skills add soprinter/skills
+```
+
+This injects the official `.agents/skills/sharenote/SKILL.md` directly into your active repository.
+
+## How It Works
+
+Once the skill is installed, simply prompt your coding assistant. The AI will natively generate the precise formatting and continuous difficulty logic required for your specific framework (TypeScript, Go, Rust, etc.) without downloading black-box packages.
+
+**Example Prompts:**
+- *"Write an Express middleware that intercepts requests, checks for a `20Z00` Sharenote in the authorization header, and verifies the Continuous Difficulty math using the sharenote skill."*
+- *"Build a Go service that acts as a Stratum proxy, consuming mining hashes and packaging them into Kind 35510 AuxPoW events exactly as defined by the sharenote skill."*
+
+The resulting code is fully transparent, exactly tailored to your service, and mathematically compliant with the protocol.
+
+
+---
+

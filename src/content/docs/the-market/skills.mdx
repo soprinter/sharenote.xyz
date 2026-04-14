@@ -1,0 +1,42 @@
+---
+title: "AI & Developer Skills"
+description: "How to integrate Sharenote's protocol knowledge directly into your AI assistant or agentic workflows."
+---
+
+Sharenote is built for the era of AI-assisted development. We provide a suite of "Skills" that allow your LLM (Large Language Model) to understand the strict mathematical constraints and Nostr event schemas required to build on the protocol.
+
+## Installing the Sharenote Skill
+
+If you are using a compatible AI agent or CLI (like Gemini CLI), you can add Sharenote protocol expertise with a single command:
+
+```bash
+npx skills add soprinter/skills
+```
+
+Once installed, your AI assistant will be able to:
+- **Perform Core Math**: Calculate Z-bits, continuous difficulty, and perform valid linear aggregation.
+- **Construct Events**: Build and validate Nostr Kinds 35500-35510 with perfect tag precision.
+- **Audit Payouts**: Verify proportional pool shares from public hash records.
+- **Reference SDKs**: Use the exact functions from `go-sharenote`, `sharenotejs`, and `sharenotelib`.
+
+## Why Use Skills?
+
+Proof-of-work difficulty exists on a logarithmic scale. Standard LLMs often struggle with the nuances of log-2 addition and floating-point precision in a decentralized context. 
+
+The Sharenote Skill provides:
+1. **Mathematical Grounding**: Prevents "hallucinations" in difficulty calculations.
+2. **Schema Enforcement**: Ensures every Nostr event you produce is valid and interoperable.
+3. **Idiomatic SDK Usage**: Guides your agent to use our optimized libraries instead of rewriting complex logic.
+
+## LLM-Friendly Documentation
+
+We provide compressed, LLM-optimized versions of our documentation for use in "Context Windows" or as reference material for AI crawlers:
+
+- **[llms.txt](/llms.txt)**: A high-level summary of the protocol and its core concepts.
+- **[llms-full.txt](/llms-full.txt)**: A full, concatenated version of all documentation and specifications.
+
+## Building with AI
+
+When building with Sharenote, we recommend a "Vibe Coding" approach where you describe your intent and let your skill-equipped agent handle the implementation details.
+
+→ [Learn more about Vibe Coding Integration](/the-market/vibe-coding)

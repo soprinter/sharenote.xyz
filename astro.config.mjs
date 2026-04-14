@@ -50,7 +50,13 @@ export default defineConfig({
       remarkPlugins: [remarkMath],
       rehypePlugins: [rehypeKatex],
     }),
-    sitemap(),
+    sitemap({
+      filter: (page) =>
+        !page.endsWith("/learn/") &&
+        !page.endsWith("/the-market/") &&
+        !page.endsWith("/specifications/") &&
+        !page.endsWith("/404/"),
+    }),
   ],
 
   devToolbar: { enabled: false },

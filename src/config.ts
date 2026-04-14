@@ -13,8 +13,10 @@ export const SITE = {
   author: "soprinter",
   desc: "Sharenote is a proof-of-work protocol that turns energy into verifiable notes. Use them to sort feeds, weight content, and audit mining payouts natively.",
   title: "Sharenote",
-  ogImage: "og-image.png",
+  ogImage: "/og-image.png",
   repo: "https://github.com/soprinter",
+  twitterSite: "@soprinter",
+  twitterCreator: "@soprinter",
 };
 
 export const LOCALE = {
@@ -52,6 +54,7 @@ export const side_nav_menu_order: string[] = [
   "the-market/agent-integration",
   "the-market/hashrate-monetization",
   "the-market/planner-calculator",
+  "the-market/skills",
   "the-market/vibe-coding",
   "the-market/faqs",
   "specifications",

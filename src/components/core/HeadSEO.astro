@@ -10,11 +10,13 @@ import { ViewTransitions } from "astro:transitions";
 import { ANALYTICS, GA_ID_PLACEHOLDER, LOCALE, SITE } from "@/config";
 import type { HeadSEOProps } from "@/lib/types";
 
-const canonicalURL = new URL(Astro.url);
+const canonicalURL = new URL(Astro.url.pathname, SITE.website);
 
 const { title, description, ogImage } = Astro.props as HeadSEOProps;
 const metaTitle = title ?? SITE.title;
 const metaDescription = description ?? SITE.desc;
+const twitterSite = SITE.twitterSite;
+const twitterCreator = SITE.twitterCreator;
 const measurementId =
   typeof ANALYTICS.googleAnalyticsId === "string"
     ? ANALYTICS.googleAnalyticsId.trim()
@@ -97,14 +99,16 @@ const schemaJSONLD = [organizationJSONLD, websiteJSONLD, breadcrumbListJSONLD];
 <meta property="og:image" content={resolvedOgImage} />
 
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:site" content="@soprinter" />
-<meta property="twitter:creator" content="@soprinter" />
+{twitterSite && <meta property="twitter:site" content={twitterSite} />}
+{twitterCreator && <meta property="twitter:creator" content={twitterCreator} />}
 <meta property="twitter:url" content={canonicalURL} />
 <meta property="twitter:title" content={metaTitle} />
 {metaDescription && (
   <meta property="twitter:description" content={metaDescription} />
 )}
 <meta property="twitter:image" content={resolvedOgImage} />
+
+<link rel="help" type="text/plain" href="/llms.txt" />
 
 <script type="application/ld+json" is:inline>
   {JSON.stringify(schemaJSONLD)}

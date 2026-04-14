@@ -12,12 +12,13 @@
   "scripts": {
     "dev": "astro dev --host",
     "start": "astro dev",
-    "build": "astro check && astro build",
+    "build": "npm run llms:generate && astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "images:build": "node tools/resize-images.mjs"
+    "images:build": "node tools/resize-images.mjs",
+    "llms:generate": "node tools/generate-llms-full.mjs"
   },
   "keywords": [
     "docs",

@@ -1,9 +1,9 @@
 ---
 const items = [
-  { label: 'First Age',   img: '/timeline/note-2.png', desc: 'The object was the value.' },
-  { label: 'Middle Age',  img: '/timeline/note-3.png', desc: 'Authority stamped the value.' },
-  { label: 'Yesterday',   img: '/timeline/note-4.png', desc: 'Paper promised the value.' },
-  { label: 'Today',       img: '/timeline/note-5.png', desc: 'Print says value — nothing backs it.' },
+  { label: 'First Age',   img: '/timeline/note-2.png', desc: 'The object was the value.', alt: 'Illustration of First Age currency as a physical object.' },
+  { label: 'Middle Age',  img: '/timeline/note-3.png', desc: 'Authority stamped the value.', alt: 'Illustration of Middle Age currency stamped by authority.' },
+  { label: 'Yesterday',   img: '/timeline/note-4.png', desc: 'Paper promised the value.', alt: 'Illustration of Yesterday’s paper currency promising value.' },
+  { label: 'Today',       img: '/timeline/note-5.png', desc: 'Print says value — nothing backs it.', alt: 'Illustration of modern printed currency without physical backing.' },
 ];
 ---
 <section id="timeline" class="py-16 timeline-section">
@@ -21,7 +21,7 @@ const items = [
                 <picture>
                   <source type="image/avif" srcset={`/optimized/${base}-w320.avif 320w, /optimized/${base}-w480.avif 480w`} sizes="(min-width: 768px) 320px, 72vw" />
                   <source type="image/webp" srcset={`/optimized/${base}-w320.webp 320w, /optimized/${base}-w480.webp 480w`} sizes="(min-width: 768px) 320px, 72vw" />
-                  <img src={it.img} srcset={`/optimized/${base}-w320.png 320w, /optimized/${base}-w480.png 480w`} sizes="(min-width: 768px) 320px, 72vw" alt={it.label} loading="lazy" decoding="async" draggable="false" />
+                  <img src={it.img} srcset={`/optimized/${base}-w320.png 320w, /optimized/${base}-w480.png 480w`} sizes="(min-width: 768px) 320px, 72vw" alt={it.alt} loading="lazy" decoding="async" draggable="false" />
                 </picture>
               </figure>
               <figcaption class="note-caption">

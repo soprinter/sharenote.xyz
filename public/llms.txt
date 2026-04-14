@@ -1,0 +1,23 @@
+# Sharenote
+
+Sharenote is a proof-of-work protocol that turns energy into verifiable notes. Use them to sort feeds, weight content, and audit mining payouts natively.
+
+- Website: https://sharenote.xyz
+- GitHub: https://github.com/soprinter
+- Documentation: https://sharenote.xyz/learn/introduction
+
+## Core Concepts
+
+- **Sharenote**: A unit of proof-of-work expressed as a text label (e.g., 34Z10).
+- **Z-Bits**: The logarithmic unit of difficulty measurement.
+- **Continuous Difficulty**: The exact mathematical density of a share, used for all accounting.
+- **SNIPs**: Sharenote Improvement Proposals, the protocol specifications (SNIP-00 to SNIP-05).
+
+## AI & Developer Tools
+
+- **Skills**: `npx skills add soprinter/skills` - Adds Sharenote protocol knowledge to your AI agent.
+- **SDKs**: Available in Go (`go-sharenote`), TypeScript (`sharenotejs`), and Python (`sharenotelib`).
+
+## Full Documentation
+
+For the full specification and technical details, see [llms-full.txt](/llms-full.txt).
