@@ -1,0 +1,41 @@
+---
+import MiniPlanner from "@/components/planner/MiniPlanner.tsx";
+---
+<section class="planner-teaser-section">
+  <div class="mx-auto max-w-[1040px] px-5 md:px-8 lg:px-6">
+    <div class="mb-8 text-center">
+      <div class="top-label">The Sharenote Planner</div>
+      <h2 class="mt-2 text-2xl md:text-3xl lg:text-4xl leading-snug font-bold">
+        What does your hardware mint?
+      </h2>
+      <p class="mx-auto mt-3 max-w-[560px] text-[var(--ink-muted)]">
+        Type your hashrate and see the denomination your rig can reliably print &mdash;
+        no mining required to find out.
+      </p>
+    </div>
+
+    <MiniPlanner client:visible />
+  </div>
+</section>
+
+<style>
+  .planner-teaser-section {
+    --teaser-bg: #c9e6d6;
+    background: var(--teaser-bg);
+    position: relative;
+    color: var(--ink);
+    padding-top: clamp(56px, 10vw, 88px);
+    padding-bottom: clamp(56px, 10vw, 88px);
+  }
+  :global(.dark) .planner-teaser-section {
+    --teaser-bg: color-mix(in oklab, #c9e6d6 14%, var(--bg));
+  }
+  .top-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--ink-muted);
+    opacity: 0.85;
+  }
+</style>
