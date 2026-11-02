@@ -1,0 +1,35 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PlannerIsland from "@/components/planner/PlannerIsland.tsx";
+---
+
+<BaseLayout
+  title="Planner"
+  description="The Sharenote Planner maps your hardware's hashrate to the Sharenote denomination it can reliably print — with reliability presets, a reverse denomination lookup, and note arithmetic tools."
+>
+  <section class="mx-auto w-full max-w-[920px] px-5 py-12 md:px-8 md:py-16">
+    <div class="mb-8">
+      <div class="text-[11px] font-extrabold uppercase tracking-[0.15em] text-[var(--ink-muted)] opacity-85">
+        The Sharenote Planner
+      </div>
+      <h1 class="mt-2 text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+        What can your hardware print?
+      </h1>
+      <p class="mt-4 max-w-[640px] text-[var(--ink-muted)]">
+        Enter your hashrate &mdash; the speed your hardware runs at &mdash; and the Planner
+        tells you the Sharenote denomination your setup produces. Start with a single number;
+        open <strong>Advanced</strong> to tune the window and reliability, compare confidence
+        levels, or design a note by denomination. No manual log-2 math required.
+      </p>
+    </div>
+
+    <PlannerIsland client:load />
+
+    <p class="mt-8 text-sm text-[var(--ink-muted)]">
+      Learn how hashrate maps to Z-bits in the
+      <a href="/the-market/planner-calculator" class="underline underline-offset-4 hover:text-primary">Planner guide</a>,
+      or read the
+      <a href="/learn/the-z-bit-standard" class="underline underline-offset-4 hover:text-primary">Z-bit standard</a>.
+    </p>
+  </section>
+</BaseLayout>

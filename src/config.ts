@@ -26,6 +26,10 @@ export const LOCALE = {
 
 export const menu_items: { title: string; href: string }[] = [
   {
+    title: "Planner",
+    href: "/planner",
+  },
+  {
     title: "Learn",
     href: "/learn/introduction",
   },
