@@ -71,25 +71,44 @@ function reliabilityLabel(id: string): string {
   return LEVELS.find((l) => l.id === id)?.label ?? id;
 }
 
+// Attributive (hyphenated, singular) form of a window for "within a __ window":
+// "5 seconds" -> "5-second", "10 minutes" -> "10-minute", "1 hour" -> "1-hour".
+function windowAttr(seconds: number): string {
+  const w = WINDOWS.find((x) => x.seconds === seconds);
+  if (w) return w.label.replace(/s$/, "").replace(" ", "-");
+  return `${seconds}-second`;
+}
+
 // ---------------------------------------------------------------------------
 // Small presentational pieces
 // ---------------------------------------------------------------------------
 
-function FieldLabel({ children }: { children: React.ReactNode }) {
+function FieldLabel({
+  htmlFor,
+  children,
+}: {
+  htmlFor?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+    <label
+      htmlFor={htmlFor}
+      className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+    >
       {children}
     </label>
   );
 }
 
 function SelectBox({
+  id,
   value,
   onChange,
   children,
   className,
   "aria-label": ariaLabel,
 }: {
+  id?: string;
   value: string | number;
   onChange: (v: string) => void;
   children: React.ReactNode;
@@ -98,6 +117,7 @@ function SelectBox({
 }) {
   return (
     <select
+      id={id}
       aria-label={ariaLabel}
       value={value}
       onChange={(e) => onChange(e.target.value)}
@@ -177,6 +197,10 @@ function Disclosure({
 // ---------------------------------------------------------------------------
 
 export default function PlannerIsland() {
+  // Unique id prefix so labels/controls pair up without colliding across islands.
+  const uid = React.useId();
+  const fid = (name: string) => `${uid}-${name}`;
+
   // Primary (Tab 1) inputs
   const [value, setValue] = React.useState("100");
   const [unitIdx, setUnitIdx] = React.useState(DEFAULT_UNIT_IDX);
@@ -196,7 +220,7 @@ export default function PlannerIsland() {
     if (!Number.isFinite(hps) || hps <= 0) return null;
     return safe(() => {
       const note = noteFromHashrate(hps, seconds, { reliability: reliability as never });
-      return { label: note.label, human: humanHashrate(hps).display };
+      return { label: note.label, human: humanHashrate(hps).display, z: note.z };
     });
   }, [hps, seconds, reliability]);
 
@@ -204,8 +228,10 @@ export default function PlannerIsland() {
   const sensitivity = React.useMemo(() => {
     if (!Number.isFinite(hps) || hps <= 0) return null;
     return LEVELS.map((level) => {
-      const r = safe(() => noteFromHashrate(hps, seconds, { reliability: level.id as never }).label);
-      return { level, note: r.ok ? r.value : "—" };
+      const r = safe(() => noteFromHashrate(hps, seconds, { reliability: level.id as never }));
+      // A note below 1Z00 is too low to reliably print at this hashrate.
+      const note = r.ok ? (r.value.z < 1 ? "—" : r.value.label) : "—";
+      return { level, note };
     });
   }, [hps, seconds]);
 
@@ -249,6 +275,13 @@ export default function PlannerIsland() {
     const b = safe(() => ensureNote(noteB));
     if (!a.ok) return { error: `Note A: ${a.error}` };
     if (!b.ok) return { error: `Note B: ${b.error}` };
+    // Keep Z within the lab's supported denomination range before deriving cells.
+    if (a.value.z < 1 || a.value.z > 256) {
+      return { error: "Note A out of range: Z must be 1–256." };
+    }
+    if (b.value.z < 1 || b.value.z > 256) {
+      return { error: "Note B out of range: Z must be 1–256." };
+    }
     const combine = safe(() => combineNotesSerial([a.value, b.value]).label);
     const diff = safe(() => noteDifference(a.value, b.value).label);
     const divide = safe(() => divideNotes(a.value, b.value));
@@ -278,9 +311,10 @@ export default function PlannerIsland() {
       {/* Primary input row */}
       <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
         <div>
-          <FieldLabel>Your hashrate</FieldLabel>
+          <FieldLabel htmlFor={fid("hashrate")}>Your hashrate</FieldLabel>
           <div className="flex gap-2">
             <Input
+              id={fid("hashrate")}
               type="number"
               inputMode="decimal"
               min={0}
@@ -288,7 +322,7 @@ export default function PlannerIsland() {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               className="flex-1 font-mono"
-              aria-label="Hashrate value"
+              aria-label="Your hashrate"
               placeholder="100"
             />
             <div className="w-28 shrink-0">
@@ -319,18 +353,31 @@ export default function PlannerIsland() {
             Enter a positive hashrate to see the note your rig can print.
           </p>
         ) : primary.ok ? (
-          <div>
-            <p className="text-sm text-muted-foreground">Your rig prints</p>
-            <p className="mt-1 font-mono text-4xl font-extrabold tracking-tight text-foreground md:text-5xl">
-              {primary.value.label}
-            </p>
-            <p className="mt-3 leading-relaxed text-foreground/90">
-              At <strong>{primary.value.human}</strong>, you will{" "}
-              <strong>{reliabilityLabel(reliability).toLowerCase()}</strong> mint a{" "}
-              <NoteChip>{primary.value.label}</NoteChip> note or heavier within a{" "}
-              {WINDOWS.find((w) => w.seconds === seconds)?.label ?? `${seconds}-second`} window.
-            </p>
-          </div>
+          primary.value.z < 1 ? (
+            <div>
+              <p className="text-sm text-muted-foreground">Your rig prints</p>
+              <p className="mt-1 font-mono text-4xl font-extrabold tracking-tight text-foreground md:text-5xl">
+                &mdash;
+              </p>
+              <p className="mt-3 leading-relaxed text-foreground/90">
+                At <strong>{primary.value.human}</strong>, your rig is{" "}
+                <strong>too low to reliably print at this hashrate</strong>.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-sm text-muted-foreground">Your rig prints</p>
+              <p className="mt-1 font-mono text-4xl font-extrabold tracking-tight text-foreground md:text-5xl">
+                {primary.value.label}
+              </p>
+              <p className="mt-3 leading-relaxed text-foreground/90">
+                At <strong>{primary.value.human}</strong>, you will{" "}
+                <strong>{reliabilityLabel(reliability).toLowerCase()}</strong> mint a{" "}
+                <NoteChip>{primary.value.label}</NoteChip> note or heavier within a{" "}
+                {windowAttr(seconds)} window.
+              </p>
+            </div>
+          )
         ) : (
           <ErrorLine message={primary.error} />
         )}
@@ -347,8 +394,9 @@ export default function PlannerIsland() {
           {/* Fine controls */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <FieldLabel>Target window</FieldLabel>
+              <FieldLabel htmlFor={fid("window")}>Target window</FieldLabel>
               <SelectBox
+                id={fid("window")}
                 aria-label="Target window"
                 value={seconds}
                 onChange={(v) => setSeconds(Number.parseInt(v, 10))}
@@ -361,8 +409,9 @@ export default function PlannerIsland() {
               </SelectBox>
             </div>
             <div>
-              <FieldLabel>Reliability</FieldLabel>
+              <FieldLabel htmlFor={fid("reliability")}>Reliability</FieldLabel>
               <SelectBox
+                id={fid("reliability")}
                 aria-label="Reliability"
                 value={reliability}
                 onChange={(v) => setReliability(v)}
@@ -417,8 +466,9 @@ export default function PlannerIsland() {
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <FieldLabel>Z (1&ndash;256)</FieldLabel>
+                <FieldLabel htmlFor={fid("z")}>Z (1&ndash;256)</FieldLabel>
                 <Input
+                  id={fid("z")}
                   type="number"
                   min={1}
                   max={256}
@@ -426,12 +476,13 @@ export default function PlannerIsland() {
                   value={zStr}
                   onChange={(e) => setZStr(e.target.value)}
                   className="font-mono"
-                  aria-label="Z bits"
+                  aria-label="Z (1–256)"
                 />
               </div>
               <div>
-                <FieldLabel>Cents (0&ndash;99)</FieldLabel>
+                <FieldLabel htmlFor={fid("cents")}>Cents (0&ndash;99)</FieldLabel>
                 <Input
+                  id={fid("cents")}
                   type="number"
                   min={0}
                   max={99}
@@ -439,7 +490,7 @@ export default function PlannerIsland() {
                   value={centsStr}
                   onChange={(e) => setCentsStr(e.target.value)}
                   className="font-mono"
-                  aria-label="Cent-Z"
+                  aria-label="Cents (0–99)"
                 />
               </div>
             </div>
@@ -501,8 +552,9 @@ export default function PlannerIsland() {
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <FieldLabel>Note A</FieldLabel>
+              <FieldLabel htmlFor={fid("note-a")}>Note A</FieldLabel>
               <Input
+                id={fid("note-a")}
                 value={noteA}
                 onChange={(e) => setNoteA(e.target.value)}
                 className="font-mono"
@@ -511,8 +563,9 @@ export default function PlannerIsland() {
               />
             </div>
             <div>
-              <FieldLabel>Note B</FieldLabel>
+              <FieldLabel htmlFor={fid("note-b")}>Note B</FieldLabel>
               <Input
+                id={fid("note-b")}
                 value={noteB}
                 onChange={(e) => setNoteB(e.target.value)}
                 className="font-mono"
@@ -549,9 +602,12 @@ export default function PlannerIsland() {
 
               {/* Scale */}
               <div className="mt-6">
-                <FieldLabel>Scale Note A &times;{factor.toFixed(1)}</FieldLabel>
+                <FieldLabel htmlFor={fid("scale")}>
+                  Scale Note A &times;{factor.toFixed(1)}
+                </FieldLabel>
                 <div className="flex items-center gap-3">
                   <input
+                    id={fid("scale")}
                     type="range"
                     min={0}
                     max={16}
@@ -559,7 +615,7 @@ export default function PlannerIsland() {
                     value={factor}
                     onChange={(e) => setFactor(Number.parseFloat(e.target.value))}
                     className="h-2 flex-1 cursor-pointer appearance-none rounded-full bg-secondary accent-primary"
-                    aria-label="Scale factor"
+                    aria-label={`Scale Note A ×${factor.toFixed(1)}`}
                   />
                   <div className="w-24 shrink-0 text-right">
                     <NoteChip>{lab.scaled}</NoteChip>
@@ -573,13 +629,14 @@ export default function PlannerIsland() {
 
           {/* nBits -> label */}
           <div>
-            <FieldLabel>Decode nBits &rarr; denomination</FieldLabel>
+            <FieldLabel htmlFor={fid("nbits")}>Decode nBits &rarr; denomination</FieldLabel>
             <div className="flex gap-2">
               <Input
+                id={fid("nbits")}
                 value={nbitsHex}
                 onChange={(e) => setNbitsHex(e.target.value)}
                 className="font-mono"
-                aria-label="nBits hex"
+                aria-label="Decode nBits → denomination"
                 placeholder="e.g. 1d00ffff"
               />
               <div className="w-28 shrink-0 text-right text-sm">

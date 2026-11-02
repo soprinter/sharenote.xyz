@@ -21,6 +21,11 @@ const RELIABILITY = "usually_90";
 const SECONDS = 5;
 
 export default function MiniPlanner() {
+  // Unique id prefix so the label/control pair up without colliding with the
+  // full planner island on the same page.
+  const uid = React.useId();
+  const hashrateId = `${uid}-hashrate`;
+
   const [value, setValue] = React.useState("100");
   const [unitIdx, setUnitIdx] = React.useState(4); // TH/s
 
@@ -32,21 +37,28 @@ export default function MiniPlanner() {
     if (!Number.isFinite(hps) || hps <= 0) return null;
     try {
       const note = noteFromHashrate(hps, SECONDS, { reliability: RELIABILITY as never });
-      return { label: note.label, human: humanHashrate(hps).display };
+      return { label: note.label, human: humanHashrate(hps).display, z: note.z };
     } catch {
       return null;
     }
   }, [hps]);
 
+  // A note below 1Z00 is too low to reliably print at this hashrate.
+  const tooLow = result != null && result.z < 1;
+
   return (
     <div className="mini-planner mx-auto max-w-[760px] rounded-2xl border-2 border-[var(--ink)] bg-[var(--panel)] p-5 md:p-7">
       <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
         <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
+          <label
+            htmlFor={hashrateId}
+            className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]"
+          >
             Your hashrate
           </label>
           <div className="flex gap-2">
             <Input
+              id={hashrateId}
               type="number"
               inputMode="decimal"
               min={0}
@@ -54,7 +66,7 @@ export default function MiniPlanner() {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               className="flex-1 border-[var(--ink)]/30 bg-transparent font-mono text-base text-[var(--ink)]"
-              aria-label="Hashrate value"
+              aria-label="Your hashrate"
               placeholder="100"
             />
             <select
@@ -82,16 +94,21 @@ export default function MiniPlanner() {
           <p
             className={cn(
               "mt-1 font-mono text-4xl font-extrabold tracking-tight text-[var(--ink)] md:text-5xl",
-              !result && "opacity-40",
+              (!result || tooLow) && "opacity-40",
             )}
           >
-            {result ? result.label : "—"}
+            {result && !tooLow ? result.label : "—"}
           </p>
-          {result && (
-            <p className="mt-1 text-xs text-[var(--ink-muted)]">
-              {result.human} · usually (90%) · 5s
-            </p>
-          )}
+          {result &&
+            (tooLow ? (
+              <p className="mt-1 text-xs text-[var(--ink-muted)]">
+                too low to reliably print at this hashrate
+              </p>
+            ) : (
+              <p className="mt-1 text-xs text-[var(--ink-muted)]">
+                {result.human} · usually (90%) · 5s
+              </p>
+            ))}
         </div>
       </div>
 
