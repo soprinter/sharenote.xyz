@@ -1,0 +1,8 @@
+---
+import Shell from "../../layouts/Shell.astro";
+import ScriptsFull from "../../components/ScriptsFull.astro";
+import { data } from "../../proto/ssr.js";
+export function getStaticPaths() { return data.tools.map((t: { id: string }) => ({ params: { id: t.id } })); }
+const { id } = Astro.params;
+---
+<Shell route={"tool-" + id}><ScriptsFull /></Shell>

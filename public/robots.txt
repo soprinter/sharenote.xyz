@@ -1,14 +1,10 @@
 User-agent: *
 Allow: /
-Disallow: /optimized/
 
-# LLM Crawler specific rules
 User-agent: GPTBot
-Allow: /llms.txt
-Allow: /llms-full.txt
+Allow: /
 
-User-agent: Claude-bot
-Allow: /llms.txt
-Allow: /llms-full.txt
+User-agent: ClaudeBot
+Allow: /
 
 Sitemap: https://sharenote.xyz/sitemap-index.xml

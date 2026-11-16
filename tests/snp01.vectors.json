@@ -1,0 +1,324 @@
+{
+ "snp": "SNP-01",
+ "about": "SN4U records, verdicts, the kind:1723 event, and Z-bit arithmetic",
+ "scale": {
+  "S0": 281474976710656,
+  "S50": 199032864766430,
+  "S99": 141716395000440,
+  "sha256_of_table": "176adcf5e580b97da1a04594b3f0848acc74e8da84f763b0baa21531befb6772",
+  "note": "S[cc] for cc = 0..99, joined by ',' in decimal, then SHA-256"
+ },
+ "zbits": [
+  {
+   "zbit": "1z00",
+   "target": "8000000000000000000000000000000000000000000000000000000000000000",
+   "weight": "680564733841876926926749214863536422912"
+  },
+  {
+   "zbit": "4z00",
+   "target": "1000000000000000000000000000000000000000000000000000000000000000",
+   "weight": "5444517870735015415413993718908291383296"
+  },
+  {
+   "zbit": "8z00",
+   "target": "0100000000000000000000000000000000000000000000000000000000000000",
+   "weight": "87112285931760246646623899502532662132736"
+  },
+  {
+   "zbit": "9z58",
+   "target": "0055a09ae50e4f80000000000000000000000000000000000000000000000000",
+   "weight": "260439470343927316245188544832181803563549"
+  },
+  {
+   "zbit": "10z00",
+   "target": "0040000000000000000000000000000000000000000000000000000000000000",
+   "weight": "348449143727040986586495598010130648530944"
+  },
+  {
+   "zbit": "20z00",
+   "target": "0000100000000000000000000000000000000000000000000000000000000000",
+   "weight": "356811923176489970264571492362373784095686656"
+  },
+  {
+   "zbit": "20z67",
+   "target": "00000a0e5d0731a5900000000000000000000000000000000000000000000000",
+   "weight": "567713805451311197175818613781444849724473308"
+  },
+  {
+   "zbit": "255z99",
+   "target": "0000000000000000000000000000000000000000000000000000000000000001",
+   "weight": "39402006196394479212279040100143613805079739270465446667948293404245721771497210611414266254884915640806627990306816"
+  }
+ ],
+ "readback": [
+  {
+   "target": "00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+   "zbit": "20z00"
+  },
+  {
+   "target": "0000100000000000000000000000000000000000000000000000000000000001",
+   "zbit": "19z99"
+  }
+ ],
+ "adding": [
+  {
+   "notes": [
+    "2z01",
+    "2z01"
+   ],
+   "weight": "2741193743659805776903188752497444528698",
+   "zbit": "3z00"
+  },
+  {
+   "notes": [
+    "8z00",
+    "9z00"
+   ],
+   "weight": "261336857795280739939871698507597986398208",
+   "zbit": "9z58"
+  },
+  {
+   "notes": [
+    "1z00",
+    "2z00"
+   ],
+   "weight": "2041694201525630780780247644590609268736",
+   "zbit": "2z58"
+  }
+ ],
+ "records": [
+  {
+   "case": "worked example: unbound sha256d 20z00",
+   "record": "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e1",
+   "verdict": "ATTRIBUTED",
+   "section": "Verification, worked example"
+  },
+  {
+   "case": "same record committing 30z00: work too small",
+   "record": "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f817981e0000000004001644e1",
+   "verdict": "REJECT",
+   "section": "Verification check 5"
+  },
+  {
+   "case": "bad tag",
+   "record": "534e4f540100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e1",
+   "verdict": "REJECT",
+   "section": "Verification check 1"
+  },
+  {
+   "case": "unknown version 2",
+   "record": "534e34550200077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e1",
+   "verdict": "SKIP",
+   "section": "Verification check 2"
+  },
+  {
+   "case": "unknown algorithm",
+   "record": "534e3455010006626c616b653379be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179814000000000100",
+   "verdict": "SKIP",
+   "section": "Verification check 3"
+  },
+  {
+   "case": "algorithm not lowercase",
+   "record": "534e34550100075348413235364479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179814000000000100",
+   "verdict": "REJECT",
+   "section": "Verification check 3"
+  },
+  {
+   "case": "identity not a valid x-only key",
+   "record": "534e345501000773686132353664000000000000000000000000000000000000000000000000000000000000000001000000000100",
+   "verdict": "REJECT",
+   "section": "Verification check 4"
+  },
+  {
+   "case": "z = 0",
+   "record": "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179800000000000100",
+   "verdict": "REJECT",
+   "section": "Verification check 4"
+  },
+  {
+   "case": "cc = 100",
+   "record": "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179801640000000100",
+   "verdict": "REJECT",
+   "section": "Verification check 4"
+  },
+  {
+   "case": "trailing byte",
+   "record": "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e100",
+   "verdict": "REJECT",
+   "section": "Verification check 4"
+  },
+  {
+   "case": "binding length overruns",
+   "record": "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f817981400ffff0004001644e1",
+   "verdict": "REJECT",
+   "section": "Verification check 4"
+  },
+  {
+   "case": "bound sha256d 8z00",
+   "record": "534e345501000773686132353664a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa910208000020abababababababababababababababababababababababababababababababab000400000054",
+   "verdict": "ATTRIBUTED",
+   "section": "The record"
+  },
+  {
+   "case": "unbound scrypt 4z00",
+   "record": "534e3455010006736372797074a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa91020400000000040000000f",
+   "verdict": "ATTRIBUTED",
+   "section": "Algorithms"
+  }
+ ],
+ "worked_example": {
+  "record": "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e1",
+  "H": "00000e47d8d39787c3a2f7969cfed5400eb7b47e8a80f0d428131903957d9911",
+  "target": "0000100000000000000000000000000000000000000000000000000000000000",
+  "verdict": "ATTRIBUTED"
+ },
+ "events": [
+  {
+   "case": "valid note event",
+   "event": {
+    "kind": 1723,
+    "pubkey": "a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa9102",
+    "created_at": 1731000000,
+    "tags": [
+     [
+      "g",
+      "sha256d"
+     ],
+     [
+      "z",
+      "8z00"
+     ],
+     [
+      "b",
+      "abababababababababababababababababababababababababababababababab"
+     ]
+    ],
+    "content": "534e345501000773686132353664a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa910208000020abababababababababababababababababababababababababababababababab000400000054",
+    "id": "cfb37f2edbed0b715631dea49e4ded21e4637ad82e536d30665e195e0bf6cdfc"
+   },
+   "verdict": "ATTRIBUTED"
+  },
+  {
+   "case": "z tag does not match the record",
+   "event": {
+    "kind": 1723,
+    "pubkey": "a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa9102",
+    "created_at": 1731000000,
+    "tags": [
+     [
+      "g",
+      "sha256d"
+     ],
+     [
+      "z",
+      "9z00"
+     ],
+     [
+      "b",
+      "abababababababababababababababababababababababababababababababab"
+     ]
+    ],
+    "content": "534e345501000773686132353664a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa910208000020abababababababababababababababababababababababababababababababab000400000054",
+    "id": "08826f9d89ebaf980a24e77307c4bb5e4b747213c429c917962702d4bf112ff1"
+   },
+   "verdict": "REJECT"
+  },
+  {
+   "case": "an extra tag",
+   "event": {
+    "kind": 1723,
+    "pubkey": "a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa9102",
+    "created_at": 1731000000,
+    "tags": [
+     [
+      "g",
+      "sha256d"
+     ],
+     [
+      "z",
+      "8z00"
+     ],
+     [
+      "b",
+      "abababababababababababababababababababababababababababababababab"
+     ],
+     [
+      "p",
+      "5d45cb81aa765d69ca52e3869491ecf0e8fdf6a63d64e65b5213647ee4973ae5"
+     ]
+    ],
+    "content": "534e345501000773686132353664a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa910208000020abababababababababababababababababababababababababababababababab000400000054",
+    "id": "fe8a5142657a13a1fb9b137f839116f41b65cab63a936a7f193508fac5e455bf"
+   },
+   "verdict": "REJECT"
+  }
+ ],
+ "split": [
+  {
+   "reward": 10,
+   "notes": [
+    "1z00",
+    "2z00"
+   ],
+   "shares": [
+    3,
+    7
+   ]
+  }
+ ],
+ "one_algorithm": [
+  {
+   "case": "two sha256d notes",
+   "notes": [
+    "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e1",
+    "534e345501000773686132353664a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa910208000020abababababababababababababababababababababababababababababababab000400000054"
+   ],
+   "algorithm": "sha256d",
+   "weight": "356899035462421730511218116261876316757819392",
+   "error": null
+  },
+  {
+   "case": "the same note twice counts once",
+   "notes": [
+    "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e1",
+    "534e345501000773686132353664a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa910208000020abababababababababababababababababababababababababababababababab000400000054",
+    "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e1"
+   ],
+   "algorithm": "sha256d",
+   "weight": "356899035462421730511218116261876316757819392",
+   "error": null
+  },
+  {
+   "case": "two scrypt notes",
+   "notes": [
+    "534e3455010006736372797074a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa91020400000000040000000f",
+    "534e34550100067363727970745d45cb81aa765d69ca52e3869491ecf0e8fdf6a63d64e65b5213647ee4973ae5040000000004000f4245"
+   ],
+   "algorithm": "scrypt",
+   "weight": "10889035741470030830827987437816582766592",
+   "error": null
+  },
+  {
+   "case": "a scrypt note in a sha256d sum: mixed-algorithms",
+   "notes": [
+    "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e1",
+    "534e3455010006736372797074a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa91020400000000040000000f"
+   ],
+   "algorithm": "sha256d",
+   "weight": null,
+   "error": "mixed-algorithms"
+  },
+  {
+   "case": "a sha256d note after two scrypt notes: mixed-algorithms",
+   "notes": [
+    "534e3455010006736372797074a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa91020400000000040000000f",
+    "534e34550100067363727970745d45cb81aa765d69ca52e3869491ecf0e8fdf6a63d64e65b5213647ee4973ae5040000000004000f4245",
+    "534e345501000773686132353664a64db41e2968c849c2a5615ba0d6e816734a6d3e6ea6ecd6f3acb7d59daa910208000020abababababababababababababababababababababababababababababababab000400000054"
+   ],
+   "algorithm": "scrypt",
+   "weight": null,
+   "error": "mixed-algorithms"
+  }
+ ],
+ "one_algorithm_note": "verified notes summed in order (SNP-01 \u00a7Adding notes): the sum is in the algorithm of the first note; a note in another algorithm is an error, mixed-algorithms, never left out (weight null); each (algorithm, H) counts once; weight is the exact sum as a decimal"
+}

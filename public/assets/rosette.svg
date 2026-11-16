@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- Mask cuts a crisp circular window for the logo -->
+    <mask id="logoWindow" maskUnits="userSpaceOnUse">
+      <rect width="512" height="512" fill="#fff"/>
+      <circle cx="256" cy="256" r="92" fill="#000"/>
+    </mask>
+  </defs>
+  <rect width="512" height="512" fill="none"/>
+  <!-- Guilloché waves with a central clear circle; fully opaque strokes -->
+  <g fill="none" stroke="#1f4c3b" stroke-opacity="1" stroke-width="0.8" vector-effect="non-scaling-stroke" shape-rendering="geometricPrecision" pointer-events="none" stroke-linecap="round" mask="url(#logoWindow)">
+    <!-- Cosine-like waves with subtle per-line variations; horizontally seamless -->
+    <path d="M0,32  C128,24   384,40   512,32"/>
+    <path d="M0,48  C128,60   384,36   512,48"/>
+    <path d="M0,64  C128,54   384,74   512,64"/>
+    <path d="M0,80  C128,92   384,68   512,80"/>
+    <path d="M0,96  C128,86   384,104  512,96"/>
+    <path d="M0,112 C128,124  384,108  512,112"/>
+    <path d="M0,128 C128,118  384,146  512,128"/>
+    <path d="M0,144 C128,158  384,140  512,144"/>
+    <!-- Near logo window, add gentle wrapping deflection -->
+    <path d="M0,160 C128,152  208,172  236,188 C246,194 266,194 276,188 C304,172 384,152 512,160"/>
+    <path d="M0,176 C128,188  208,184  228,200 C244,212 268,212 284,200 C304,184 384,188 512,176"/>
+    <path d="M0,192 C128,182  208,194  222,214 C240,232 272,232 290,214 C304,194 384,182 512,192"/>
+    <path d="M0,208 C128,220  208,206  218,232 C238,256 274,256 294,232 C304,206 384,220 512,208"/>
+    <path d="M0,224 C128,214  208,218  216,248 C236,276 276,276 296,248 C304,218 384,214 512,224"/>
+    <path d="M0,240 C128,252  208,236  214,264 C236,296 276,296 298,264 C304,236 384,252 512,240"/>
+    <path d="M0,256 C128,248  208,248  214,280 C236,316 276,316 298,280 C304,248 384,248 512,256"/>
+    <path d="M0,272 C128,284  208,266  216,296 C236,324 276,324 296,296 C304,266 384,284 512,272"/>
+    <path d="M0,288 C128,278  208,284  218,310 C238,334 274,334 294,310 C304,284 384,278 512,288"/>
+    <path d="M0,304 C128,316  208,298  222,318 C240,336 272,336 290,318 C304,298 384,316 512,304"/>
+    <path d="M0,320 C128,310  208,320  228,332 C244,344 268,344 284,332 C304,320 384,310 512,320"/>
+    <path d="M0,336 C128,348  208,330  236,344 C246,350 266,350 276,344 C304,330 384,348 512,336"/>
+    <path d="M0,352 C128,342  384,360  512,352"/>
+    <path d="M0,368 C128,380  384,372  512,368"/>
+    <path d="M0,384 C128,374  384,392  512,384"/>
+    <path d="M0,400 C128,412  384,404  512,400"/>
+    <path d="M0,416 C128,406  384,422  512,416"/>
+    <path d="M0,432 C128,444  384,436  512,432"/>
+    <path d="M0,448 C128,438  384,456  512,448"/>
+    <path d="M0,464 C128,476  384,468  512,464"/>
+    <path d="M0,480 C128,470  384,488  512,480"/>
+  </g>
+  <!-- Framing ring for the logo area (keeps logo readable) -->
+  <circle cx="256" cy="256" r="94" fill="none" stroke="#1f4c3b" stroke-opacity="1" stroke-width="1.2"/>
+  <!-- No scripts, no external references -->
+</svg>

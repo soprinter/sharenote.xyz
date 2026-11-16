@@ -1,0 +1,10 @@
+---
+import Shell from "../../layouts/Shell.astro";
+import ScriptsBase from "../../components/ScriptsBase.astro";
+import { data } from "../../proto/ssr.js";
+export function getStaticPaths() {
+  return [...Object.keys(data.learn).map((k) => ({ params: { slug: k }, props: { route: "learn-" + k } })), { params: { slug: "glossary" }, props: { route: "glossary" } }];
+}
+const { route } = Astro.props;
+---
+<Shell route={route}><ScriptsBase /></Shell>
