@@ -172,7 +172,11 @@ var SN = (function () {
     return { verdict: "ATTRIBUTED", fields: fields, hash: H };
   }
 
+  /** SNP-01 worked example: unbound sha256d 20z00 (snps/vectors/snp01.json "worked_example") */
+  var WORKED_EXAMPLE = "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e1";
+
   return {
+    WORKED_EXAMPLE: WORKED_EXAMPLE,
     SCALE: SCALE, TWO_256: TWO_256, TWO_384: TWO_384,
     isZBit: isZBit, parseZBit: parseZBit, formatZBit: formatZBit, target: target, weight: weight, value: value, valueFloat: valueFloat,
     zReal: zReal, zbitOfTarget: zbitOfTarget, zbitOfWeight: zbitOfWeight, addZBits: addZBits, split: split,

@@ -14,22 +14,33 @@
     take: function () { var z = window.SN_PREFILL_Z; try { z = z || sessionStorage.getItem("sn-prefill-z"); sessionStorage.removeItem("sn-prefill-z"); } catch (e) {} window.SN_PREFILL_Z = null; return z || null; }
   };
 
-  /* ---------- miner (Web Worker over the inlined zmath source) ---------- */
-  var MINER_SRC = "self.onmessage=function(e){var d=e.data,rec=new Uint8Array(d.rec),tgt=SN.unhex(d.target),n=rec.length,t0=Date.now(),i=0;" +
-    "function le(h){for(var k=0;k<32;k++){if(h[k]<tgt[k])return true;if(h[k]>tgt[k])return false;}return true;}" +
-    "for(;;i++){rec[n-4]=(i>>>24)&255;rec[n-3]=(i>>>16)&255;rec[n-2]=(i>>>8)&255;rec[n-1]=i&255;var h=SN.sha256d(rec);" +
+  /* ---------- miner (Web Worker) ----------
+   * The nonce is 8 bytes (2^64 tries), so any Z-bit a browser can reach has a solution in the search space.
+   * The worker gets the maths from zmath's own file (site: importScripts of the bundled URL) or, in the
+   * single-file prototype, from the page's inline <script id="zmath-src">. One worker URL is reused. */
+  var PUT_NONCE = "function put(r,n,i){var hi=Math.floor(i/4294967296),lo=i>>>0;r[n-8]=hi>>>24&255;r[n-7]=hi>>>16&255;r[n-6]=hi>>>8&255;r[n-5]=hi&255;r[n-4]=lo>>>24&255;r[n-3]=lo>>>16&255;r[n-2]=lo>>>8&255;r[n-1]=lo&255;}";
+  var MINER_SRC = PUT_NONCE + "self.onmessage=function(e){var d=e.data,rec=new Uint8Array(d.rec),tgt=SN.unhex(d.target),n=rec.length,t0=Date.now(),i=0,k=0;" +
+    "function le(h){for(var j=0;j<32;j++){if(h[j]<tgt[j])return true;if(h[j]>tgt[j])return false;}return true;}" +
+    "for(;;i++){put(rec,n,i);var h=SN.sha256d(rec);" +
     "if(le(h)){self.postMessage({done:true,rec:rec.buffer,tries:i+1,ms:Date.now()-t0},[rec.buffer]);return;}" +
-    "if((i&8191)===8191)self.postMessage({tries:i+1,ms:Date.now()-t0});}};";
+    "if(++k===8192){k=0;self.postMessage({tries:i+1,ms:Date.now()-t0});}}};";
+  function putNonce(r, n, i) { var hi = Math.floor(i / 4294967296), lo = i >>> 0; r[n - 8] = hi >>> 24 & 255; r[n - 7] = hi >>> 16 & 255; r[n - 6] = hi >>> 8 & 255; r[n - 5] = hi & 255; r[n - 4] = lo >>> 24 & 255; r[n - 3] = lo >>> 16 & 255; r[n - 2] = lo >>> 8 & 255; r[n - 1] = lo & 255; }
+  var WORKER_URL = null;
+  function workerUrl() {
+    if (WORKER_URL) return WORKER_URL;
+    var head = window.ZMATH_URL ? "importScripts(" + JSON.stringify(new URL(window.ZMATH_URL, location.href).href) + ");" : ((document.getElementById("zmath-src") || {}).textContent || "");
+    WORKER_URL = URL.createObjectURL(new Blob([head + "\n" + MINER_SRC], { type: "text/javascript" }));
+    return WORKER_URL;
+  }
   var worker = null, fallbackTimer = null;
   window.SNMine = {
     start: function (f, onProgress, onDone) {
       this.cancel();
-      var rec = SN.encodeRecord({ algorithm: f.algorithm, identity: f.identity, zbit: f.zbit, binding: f.binding, nonce: new Uint8Array(4) });
+      var rec = SN.encodeRecord({ algorithm: f.algorithm, identity: f.identity, zbit: f.zbit, binding: f.binding, nonce: new Uint8Array(8) });
       var tgt = SN.hex64(SN.target(f.zbit));
       function done(r) { onDone({ record: new Uint8Array(r.rec), tries: r.tries, ms: r.ms }); }
       try {
-        var src = (window.ZMATH_SRC || (document.getElementById("zmath-src") || {}).textContent || "") + "\n" + MINER_SRC;
-        worker = new Worker(URL.createObjectURL(new Blob([src], { type: "text/javascript" })));
+        worker = new Worker(workerUrl());
         worker.onmessage = function (e) { var d = e.data; if (d.done) { worker.terminate(); worker = null; done(d); } else onProgress({ tries: d.tries, rate: d.tries / Math.max(.001, d.ms / 1000) }); };
         worker.onerror = function () { worker = null; main(); };
         worker.postMessage({ rec: rec.buffer.slice(0), target: tgt });
@@ -38,7 +49,7 @@
         var n = rec.length, t = SN.unhex(tgt), i = 0, t0 = Date.now();
         (function chunk() {
           for (var k = 0; k < 4000; k++, i++) {
-            rec[n - 4] = (i >>> 24) & 255; rec[n - 3] = (i >>> 16) & 255; rec[n - 2] = (i >>> 8) & 255; rec[n - 1] = i & 255;
+            putNonce(rec, n, i);
             var h = SN.sha256d(rec), ok = true;
             for (var j = 0; j < 32; j++) { if (h[j] < t[j]) break; if (h[j] > t[j]) { ok = false; break; } }
             if (ok) { fallbackTimer = null; done({ rec: rec.slice().buffer, tries: i + 1, ms: Date.now() - t0 }); return; }
@@ -103,9 +114,15 @@
    * SNP-01 Minter + inspector
    * ===================================================================== */
   var mintState = null;
-  var WORKED_REC = "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e1";
   /* the note the minter opens with (server-rendered, so nothing moves when the page wakes up) */
-  function mintStartCard() { var rec = SN.unhex(WORKED_REC), v = SN.verifyRecord(rec); return U().noteCard({ zbit: "20z00", alg: "sha256d", identity: SN_FIX.G, binding: "unbound", verdict: v.verdict, H: SN.hex(v.hash), record: rec }); }
+  /* a label for a record's binding: quoted text when it is readable, else short hex */
+  function bindLabel(rec) {
+    var v = SN.verifyRecord(rec), b = v.fields ? v.fields.binding : null;
+    if (!b || !b.length) return "unbound";
+    try { var t = new TextDecoder("utf-8", { fatal: true }).decode(b); if (/^[\x20-\x7e]+$/.test(t)) return "“" + t + "”"; } catch (e) {}
+    return U().short(SN.hex(b), 8, 4);
+  }
+  function mintStartCard() { var rec = SN.unhex(SN.WORKED_EXAMPLE), v = SN.verifyRecord(rec); return U().noteCard({ zbit: "20z00", alg: "sha256d", identity: SN_FIX.G, binding: "unbound", verdict: v.verdict, H: SN.hex(v.hash), record: rec }); }
 
   /* ---------- how fast is this tab, and how absurd is the ask ---------- */
   var LAST_RATE = 0;
@@ -169,6 +186,7 @@
         '<label class="f">Credited identity (x-only hex)<input class="in mono" id="mI" spellcheck="false" autocomplete="off"><span class="hint">Default: the secp256k1 generator, used by the spec’s worked example. A real minter uses your npub.</span></label>' +
         '<div class="f">Binding' + seg("mB", [["none", "Unbound"], ["text", "Text"], ["event", "Event id"], ["epoch", "API epoch"]], "none") + '</div>' +
         '<input class="in mono" id="mBV" placeholder="" hidden autocomplete="off" spellcheck="false">' +
+        '<p class="hint" id="mErr" role="alert" hidden style="color:var(--danger);font-weight:600"></p>' +
         '<div class="row"><button class="btn primary" id="mGo" type="button" data-sticky data-sticky-status="#mP">Mint note</button><span class="mono muted" id="mP" style="font-size:12px"></span></div>' +
         '<div class="meter"><i id="mM"></i></div></div>' +
         '<div class="out"><div id="mNote">' + mintStartCard() + '</div><div class="panel stack" data-sheet="SN4U record"><div class="row" style="justify-content:space-between"><h3>SN4U record</h3><span class="muted mono" id="mLen" style="font-size:12px"></span></div><div class="bytes" id="mBytes"></div><div class="legend" id="mLeg"></div></div>' +
@@ -178,7 +196,9 @@
     },
     mount: function (root) {
       var I = $("#mI", root), bv = $("#mBV", root); I.value = SN_FIX.G;
+      root.addEventListener("input", function (e) { if (e.target === bv || e.target === I) $("#mErr", root).hidden = true; });
       var bindMode = onSeg(root, "mB", function (v) {
+        $("#mErr", root).hidden = true;
         bv.hidden = v === "none";
         bv.value = v === "text" ? "hello from sharenote.xyz" : v === "event" ? SN_FIX.hexid() : v === "epoch" ? "https://api.example epoch 7" : "";
         bv.placeholder = v === "epoch" ? "origin epoch N" : "";
@@ -186,8 +206,17 @@
       function binding() {
         var m = bindMode(), v = bv.value.trim();
         if (m === "text") return { b: SN.utf8(v), label: "“" + v + "”" };
-        if (m === "event") return { b: SN.unhex(v.padEnd(64, "0").slice(0, 64)), label: "event " + U().short(v, 8, 4) };
-        if (m === "epoch") { var mm = /^(\S+)\s+epoch\s+(\d+)$/.exec(v) || [0, "https://api.example", "7"]; var ep = +mm[2]; return { b: SN.concat([SN.sha256(SN.utf8(mm[1])), Uint8Array.of(ep >>> 24 & 255, ep >>> 16 & 255, ep >>> 8 & 255, ep & 255)]), label: mm[1] + " · epoch " + ep }; }
+        if (m === "event") {
+          var hx = v.replace(/\s+/g, "").toLowerCase();
+          if (!/^[0-9a-f]{64}$/.test(hx)) return { err: "An event id is 64 hex characters. Paste the hex id, not a note1… or nevent1… string." };
+          return { b: SN.unhex(hx), label: "event " + U().short(hx, 8, 4) };
+        }
+        if (m === "epoch") {
+          var mm = /^(https:\/\/[a-z0-9.-]+)\s+epoch\s+(\d{1,10})$/i.exec(v), ep = mm ? Number(mm[2]) : -1;
+          if (!mm || ep > 4294967295) return { err: "Write the API binding as “https://host epoch N”, for example https://api.example epoch 7." };
+          var origin = mm[1].toLowerCase(); // SNP-09: lowercase scheme and host
+          return { b: SN.concat([SN.sha256(SN.utf8(origin)), Uint8Array.of(ep >>> 24 & 255, ep >>> 16 & 255, ep >>> 8 & 255, ep & 255)]), label: origin + " · epoch " + ep };
+        }
         return { b: new Uint8Array(0), label: "unbound" };
       }
       function show(rec, label) {
@@ -239,8 +268,11 @@
         if (go.dataset.busy) { window.SNMine.cancel(); return; }
         var zb = curZ(), idh = I.value.replace(/[^0-9a-f]/gi, "").toLowerCase();
         if (!zb) return;
-        if (idh.length !== 64) { $("#mV", root).innerHTML = vline("bad", "The identity must be 64 hex characters (32 bytes)."); return; }
-        var bd = binding(), expect = SN.valueFloat(zb), t0 = Date.now(), sExp = expect / rateHere();
+        var err = $("#mErr", root), bd = binding();
+        if (idh.length !== 64) bd = { err: "The identity must be 64 hex characters (32 bytes)." };
+        err.hidden = !bd.err; err.textContent = bd.err || "";
+        if (bd.err) { err.scrollIntoView({ block: "center", behavior: "smooth" }); return; }
+        var expect = SN.valueFloat(zb), t0 = Date.now(), sExp = expect / rateHere();
         go.dataset.busy = "1"; go.textContent = "Stop";
         $("#mNote", root).innerHTML = U().noteCard({ zbit: SN.formatZBit(zb), identity: idh, binding: bd.label, verdict: "PENDING", foot: "mining… expect about " + U().fmtHashes(expect) + " hashes" }); U().paintGuil($("#mNote", root));
         if (sExp > 30) { var qi = 0; $("#mFun", root).insertAdjacentHTML("beforeend", '<p class="hint" id="mQuip" style="font-style:italic"></p>'); clearInterval(quipT); quipT = setInterval(function () { var q = $("#mQuip", root); if (!q) { clearInterval(quipT); return; } q.textContent = MINING_QUIPS[qi++ % MINING_QUIPS.length](Date.now() - t0, sExp); }, 4000); }
@@ -261,8 +293,10 @@
         });
       });
       updateFun();
-      var start = window.SN_LAST ? window.SN_LAST.record : SN.unhex(WORKED_REC);
-      mintState = { orig: start.slice() }; show(start, window.SN_LAST ? "“hello from sharenote.xyz”" : "unbound");
+      var last = window.SN_LAST ? window.SN_LAST.record : null;
+      if (!last) { try { var lh = sessionStorage.getItem("sn-last"); if (lh) { last = SN.unhex(lh); sessionStorage.removeItem("sn-last"); } } catch (e) {} }
+      var start = last || SN.unhex(SN.WORKED_EXAMPLE);
+      mintState = { orig: start.slice() }; show(start, last ? bindLabel(start) : "unbound");
     }
   };
 

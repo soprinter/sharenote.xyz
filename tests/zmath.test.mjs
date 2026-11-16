@@ -20,3 +20,13 @@ test("SNP-04 and SNP-05 worked splits", () => {
   assert.deepEqual(SN.split(1000n, [{ weight: w("8z00") + w("9z00"), minH: 1n }, { weight: w("10z00"), minH: 2n }, { weight: w("9z00"), minH: 3n }]).map(Number), [333, 445, 222]);
 });
 test("SNP-06 cost cap", () => assert.equal(SN.costCap(1, 3, SN.parseZBit("12z00"), SN.parseZBit("16z00")), 1n));
+test("the site's worked example is the SNP-01 vector record", () => assert.equal(SN.WORKED_EXAMPLE, v.worked_example.record));
+test("an 8-byte nonce mines past 2^32 tries", () => {
+  // the miner writes the try counter big-endian into the last 8 bytes; check the high word is used
+  const rec = SN.encodeRecord({ algorithm: "sha256d", identity: SN.unhex("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"), zbit: { z: 1, cc: 0 }, binding: new Uint8Array(0), nonce: new Uint8Array(8) });
+  const n = rec.length, i = 2 ** 32 + 5, hi = Math.floor(i / 2 ** 32), lo = i >>> 0;
+  rec[n - 8] = hi >>> 24 & 255; rec[n - 7] = hi >>> 16 & 255; rec[n - 6] = hi >>> 8 & 255; rec[n - 5] = hi & 255;
+  rec[n - 4] = lo >>> 24 & 255; rec[n - 3] = lo >>> 16 & 255; rec[n - 2] = lo >>> 8 & 255; rec[n - 1] = lo & 255;
+  assert.equal(SN.hex(rec.slice(n - 8)), "0000000100000005");
+  assert.equal(SN.verifyRecord(rec).fields.nonce.length, 8);
+});

@@ -34,15 +34,7 @@
   function logo() {
     return '<span class="logo-wrap" aria-hidden="true"><img class="ros" src="' + (window.SN_ASSETS || {}).rosette + '" alt=""><img class="lg" src="' + (window.SN_ASSETS || {}).logo + '" alt=""></span>';
   }
-  var SEAL_RING = rosettePath(60, 60, 54, 6, 9, 2, 600);
-  function seal(state) {
-    var col = state === "bad" ? "var(--danger)" : state === "pend" ? "var(--ember)" : "var(--signal)";
-    var mark = state === "bad" ? '<path d="M48 48l24 24M72 48 48 72" stroke="' + col + '" stroke-width="5" stroke-linecap="round"/>'
-      : state === "pend" ? '<circle cx="60" cy="60" r="5" fill="' + col + '"/>'
-      : '<path d="m46 61 10 10 19-21" fill="none" stroke="' + col + '" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>';
-    return '<svg class="seal" viewBox="0 0 120 120" aria-hidden="true"><path d="' + SEAL_RING + '" fill="none" stroke="' + col + '" stroke-width=".7" opacity=".85"/>' +
-      '<circle cx="60" cy="60" r="27" fill="var(--sheet)" stroke="' + col + '" stroke-width="1.6"/>' + mark + "</svg>";
-  }
+
   function paintGuil(root) {
     var col = getComputedStyle(document.documentElement).getPropertyValue("--guil").trim() || "rgba(31,76,59,.14)";
     $$("canvas.gcv", root).forEach(function (cv) {
@@ -83,7 +75,6 @@
 
   /* ---------- the bill (original ostrich note art, live values printed on it) ---------- */
   var A = window.SN_ASSETS || {};
-  function zfmt(zb) { var p = String(zb).split("z"); return '<span class="zn">' + esc(p[0]) + '<span class="zz">z</span>' + esc(p[1] || "") + "</span>"; }
   function qrSvg(rec) {
     if (!rec || !window.qrcode) return '<div class="b-qr empty"><span>QR prints<br>after minting</span></div>';
     try {
@@ -193,10 +184,9 @@
       '<div class="eyebrow ember" style="margin-top:14px">' + eyebrow + "</div><h1>" + title + "</h1>" + (lede ? '<p class="lede">' + lede + "</p>" : "") + (extra || "") + "</div></div>";
   }
 
-  var WORKED = "534e34550100077368613235366479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798140000000004001644e1";
 
   function pHome() {
-    var v = SN.verifyRecord(SN.unhex(WORKED));
+    var v = SN.verifyRecord(SN.unhex(SN.WORKED_EXAMPLE));
     var lanes = [
       ["Miners", "Turn hashes you already make into notes.", ["Merged notes from every SHA-256d or scrypt share", "Solo blocks through a Node Service Provider", "Sell spare hashrate as notes"], "tool-planner", "Plan your output"],
       ["Buyers and issuers", "Pay for work, or reward it.", ["Buy notes when your phone can't mine", "Post a work offer on any Nostr event", "Pay out with a receipt anyone can audit"], "tool-offer", "Compose an offer"],
@@ -211,7 +201,7 @@
       '<div class="zstep-wrap"><div class="zstep"><button type="button" aria-label="One bit smaller">−</button><div class="zv" aria-live="polite"><span class="zn">16z00</span></div><button type="button" aria-label="One bit bigger">+</button></div><p class="zjoke ok">Blink and it’s minted.</p></div>' +
       '<button class="btn primary" id="heroMint" type="button">Mint it in your browser</button><a class="btn" href="#snp-01">Read SNP-01</a></div>' +
       '<div class="mint-bar" id="heroBar"><span>Shown: the SNP-01 worked example, verified here just now.</span></div></div>' +
-      '<div id="heroNote">' + noteCard({ zbit: "20z00", alg: "sha256d", identity: SN_FIX.G, binding: "unbound", verdict: v.verdict, H: SN.hex(v.hash), record: WORKED }) + "</div></div></section>" +
+      '<div id="heroNote">' + noteCard({ zbit: "20z00", alg: "sha256d", identity: SN_FIX.G, binding: "unbound", verdict: v.verdict, H: SN.hex(v.hash), record: SN.WORKED_EXAMPLE }) + "</div></div></section>" +
 
       historyOfValue() +
 
@@ -242,7 +232,7 @@
   }
   function mountHome() {
     mountHistory();
-    renderBytes($("#homeBytes"), $("#homeLegend"), SN.unhex(WORKED));
+    renderBytes($("#homeBytes"), $("#homeLegend"), SN.unhex(SN.WORKED_EXAMPLE));
     var btn = $("#heroMint"), bar = $("#heroBar"), sel = $("#heroZ");
     sel.addEventListener("change", function () { if (sel.value === "more") { window.SNPrefill.set("32z00"); location.href = toPath("tool-mint"); } });
     btn.addEventListener("click", function () {
@@ -262,6 +252,7 @@
         paintGuil($("#heroNote"));
         bar.innerHTML = '<span>Minted and verified in this tab. <a href="#tool-mint">Inspect it in the minter →</a></span>';
         window.SN_LAST = res;
+        try { sessionStorage.setItem("sn-last", SN.hex(res.record)); } catch (e) {}
       });
     });
   }
@@ -532,12 +523,7 @@
     else if (h === "network") window.TOOLS.network.mount($("#toolRoot"));
     else if (h === "build") mountBuild("");
   }
-  function routeNames() {
-    return ["home", "learn", "glossary", "specs", "tools", "network", "build"]
-      .concat(LEARN_ORDER.map(function (l) { return "learn-" + l[0]; }))
-      .concat(SPECS().map(function (s) { return "snp-" + s.n; }))
-      .concat(TOOL_META.map(function (t) { return "tool-" + t.id; }));
-  }
+
   function navHtml(nav) { return header().replace('data-nav="' + nav + '"', 'data-nav="' + nav + '" aria-current="page"'); }
 
   /* ---------- search ---------- */
@@ -606,8 +592,8 @@
     if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("/sw.js").catch(function () {});
   }
 
-  window.UI = { zfmt: zfmt, $: $, $$: $$, esc: esc, short: short, I: I, noteCard: noteCard, seal: seal, paintGuil: paintGuil, renderBytes: renderBytes, fmtHashes: fmtHashes, fmtRate: fmtRate, fmtDur: fmtDur, group: group, toast: toast, copy: copy, logo: logo };
-  window.SNSite = { renderRoute: renderRoute, routeNames: routeNames, toPath: toPath, fixLinks: fixLinks, header: navHtml, footer: footer, searchIndex: searchIndex, WORKED: WORKED };
+  window.UI = { $: $, $$: $$, esc: esc, short: short, I: I, noteCard: noteCard, paintGuil: paintGuil, renderBytes: renderBytes, fmtHashes: fmtHashes, fmtRate: fmtRate, fmtDur: fmtDur, group: group, toast: toast, copy: copy, logo: logo };
+  window.SNSite = { renderRoute: renderRoute, toPath: toPath, fixLinks: fixLinks, header: navHtml, footer: footer, searchIndex: searchIndex };
   if (typeof document !== "undefined" && document.body && document.body.dataset) {
     // boot after every module on the page has evaluated (shared chunks load before page-specific ones)
     var later = function () { setTimeout(boot, 0); };

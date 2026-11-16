@@ -16,6 +16,7 @@ export function page(route) {
   const sheets = [...r.html.matchAll(/data-sheet="([^"]+)"/g)].map((m) => m[1]);
   if (sheets.length) {
     const i = r.html.search(/<div class="panel stack" data-sheet=/);
+    if (i < 0) throw new Error(`route "${route}": panels with data-sheet must start with <div class="panel stack" data-sheet=…> so the phone chip row can be placed`);
     const row = '<div class="sheet-chips">' + sheets.map((t) => '<button type="button" class="btn sm">' + t + ' <span aria-hidden="true">›</span></button>').join("") + "</div>";
     r.html = r.html.slice(0, i) + row + r.html.slice(i);
   }
