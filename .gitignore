@@ -13,3 +13,4 @@ pnpm-debug.log*
 .vscode/
 coverage/
 .parcel-cache/
+.claude/
