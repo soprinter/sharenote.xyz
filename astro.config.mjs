@@ -1,64 +1,35 @@
 import { defineConfig } from "astro/config";
-import rehypeExternalLinks from "rehype-external-links";
-import tailwind from "@astrojs/tailwind";
-import react from "@astrojs/react";
-import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
 
-// https://astro.build/config
+// Old SNIP-era URLs → their SNP-era pages (mirrored in public/_redirects for the host).
+const redirects = {
+  "/specifications": "/specs/",
+  "/specifications/snip-00": "/specs/01/",
+  "/specifications/snip-02": "/specs/02/",
+  "/specifications/snip-03": "/specs/04/",
+  "/specifications/snip-04": "/specs/02/",
+  "/specifications/snip-05": "/specs/03/",
+  "/planner": "/tools/planner/",
+  "/the-market": "/tools/",
+  "/the-market/planner-calculator": "/tools/planner/",
+  "/the-market/spending-bills": "/tools/buy/",
+  "/the-market/hashrate-monetization": "/tools/buy/",
+  "/the-market/agent-integration": "/build/",
+  "/the-market/skills": "/build/",
+  "/the-market/faqs": "/",
+  "/learn/introduction": "/learn/",
+  "/learn/what-is-sharenote": "/learn/note/",
+  "/learn/how-it-works": "/learn/note/",
+  "/learn/the-z-bit-standard": "/learn/zbit/",
+  "/learn/use-cases": "/learn/",
+  "/learn/learn-by-example": "/learn/",
+};
+
 export default defineConfig({
-  vite: {
-    server: {
-      allowedHosts: true,
-    },
-    preview: {
-      allowedHosts: true,
-    },
-  },
   site: "https://sharenote.xyz/",
-  markdown: {
-    smartypants: true,
-    syntaxHighlight: "shiki",
-    shikiConfig: {
-      // theme: "catppuccin-mocha",
-      themes: {
-        light: "catppuccin-latte",
-        dark: "catppuccin-macchiato",
-      },
-    },
-    rehypePlugins: [
-      [
-        rehypeExternalLinks,
-        {
-          target: "_blank",
-        },
-      ],
-      rehypeKatex,
-    ],
-    remarkPlugins: [remarkMath],
-    prefetch: true,
-  },
-  integrations: [
-    react(),
-    tailwind({
-      applyBaseStyles: false,
-    }),
-    mdx({
-      gfm: true,
-      remarkPlugins: [remarkMath],
-      rehypePlugins: [rehypeKatex],
-    }),
-    sitemap({
-      filter: (page) =>
-        !page.endsWith("/learn/") &&
-        !page.endsWith("/the-market/") &&
-        !page.endsWith("/specifications/") &&
-        !page.endsWith("/404/"),
-    }),
-  ],
-
-  devToolbar: { enabled: false },
-
+  redirects,
+  prefetch: { prefetchAll: true, defaultStrategy: "viewport" },
+  integrations: [sitemap({ filter: (p) => !/\/(search\.json|llms(-full)?\.txt)$/.test(p) })],
+  build: { inlineStylesheets: "always" },
+  vite: { server: { allowedHosts: true }, preview: { allowedHosts: true } },
 });

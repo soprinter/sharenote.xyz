@@ -1,0 +1,8 @@
+---
+import Shell from "../../layouts/Shell.astro";
+import ScriptsBase from "../../components/ScriptsBase.astro";
+import { data } from "../../proto/ssr.js";
+export function getStaticPaths() { return data.specs.map((s: { n: string }) => ({ params: { n: s.n } })); }
+const { n } = Astro.params;
+---
+<Shell route={"snp-" + n}><ScriptsBase /></Shell>

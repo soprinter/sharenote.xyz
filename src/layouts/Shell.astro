@@ -1,0 +1,54 @@
+---
+import "../styles/fonts.css";
+import "../styles/styles.css";
+import "../styles/mobile.css";
+import montserrat from "@fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2?url";
+import geist from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url";
+import { page } from "../proto/ssr.js";
+
+interface Props { route: string }
+const { route } = Astro.props;
+const p = page(route);
+const title = route === "home" ? p.title : `${p.title} · Sharenote`;
+const description = p.description || "Sharenote is proof of energy on Nostr: a receipt for computation that anyone can check and no one has to issue. SNP-01 to 09, tools, network and SDKs.";
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const gaId = import.meta.env.PUBLIC_GOOGLE_ANALYTICS_ID || "G-Z172WTEVZD";
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#f6f1e5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1a16" media="(prefers-color-scheme: dark)" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icons/icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    {route === "home" && <link rel="preload" as="image" type="image/avif" imagesrcset="/assets/bill-600.avif 600w, /assets/bill-800.avif 800w, /assets/bill-1000.avif 1000w" imagesizes="(max-width: 700px) 100vw, 620px" fetchpriority="high" />}
+    <link rel="preload" href={montserrat} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={geist} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/SharenoteZ.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="help" href="/llms.txt" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL("/og.jpg", Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@soprinter" />
+    <script is:inline>try{var t=localStorage.getItem("sn-theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>
+  </head>
+  <body data-route={route}>
+    <Fragment set:html={p.shell} />
+    <slot />
+    {import.meta.env.PROD && gaId && (
+      <script is:inline define:vars={{ gaId }}>
+        // analytics loads on the first interaction, so it never competes with the first paint
+        (function () { var done = false, evs = ["pointerdown", "keydown", "touchstart"]; function go() { if (done) return; done = true; evs.forEach(function (e) { removeEventListener(e, go, true); }); var s = document.createElement("script"); s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + gaId; document.head.appendChild(s); window.dataLayer = window.dataLayer || []; function gtag(){ dataLayer.push(arguments); } gtag("js", new Date()); gtag("config", gaId); } evs.forEach(function (e) { addEventListener(e, go, { capture: true, passive: true, once: true }); }); })();
+      </script>
+    )}
+  </body>
+</html>
